@@ -70,6 +70,7 @@ export async function loginAction(formData: FormData) {
 }
 
 export async function registerBuyerAction(formData: FormData) {
+  const callbackUrl = String(formData.get("callbackUrl") ?? "");
   const result = await registerBuyer({
     name: String(formData.get("name") ?? ""),
     email: String(formData.get("email") ?? ""),
@@ -95,7 +96,11 @@ export async function registerBuyerAction(formData: FormData) {
       };
     }
 
-    return { ok: true as const, redirectTo: "/guardados" };
+    const redirectTo =
+      callbackUrl && canUseCallback("comprador", callbackUrl)
+        ? callbackUrl
+        : "/guardados";
+    return { ok: true as const, redirectTo };
   } catch (error) {
     if (error instanceof AuthError) {
       return {

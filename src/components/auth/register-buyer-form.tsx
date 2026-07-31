@@ -9,7 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function RegisterBuyerForm() {
+export function RegisterBuyerForm({
+  callbackUrl = "/guardados",
+}: {
+  callbackUrl?: string;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -31,6 +35,7 @@ export function RegisterBuyerForm() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
+      <input type="hidden" name="callbackUrl" value={callbackUrl} />
       <div className="space-y-1.5">
         <Label htmlFor="name">Nombre</Label>
         <Input id="name" name="name" required placeholder="Tu nombre" />

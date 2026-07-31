@@ -49,6 +49,8 @@ function ensure(sellerId: string): SellerCounters {
 export function recordDemoWhatsappClick(input: {
   sellerId?: string;
   partId?: string;
+  userId?: string;
+  sessionId?: string;
 }) {
   if (!input.sellerId) return;
   const row = ensure(input.sellerId);
@@ -57,6 +59,9 @@ export function recordDemoWhatsappClick(input: {
   if (input.partId) {
     row.waByPart[input.partId] = (row.waByPart[input.partId] ?? 0) + 1;
   }
+  // userId / sessionId disponibles para demos futuros de atribución
+  void input.userId;
+  void input.sessionId;
 }
 
 export function recordDemoPartView(input: {

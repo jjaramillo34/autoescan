@@ -24,6 +24,10 @@ const analyticsEventSchema = new Schema(
     location: { type: String, default: "" },
     partId: { type: Schema.Types.ObjectId, ref: "Part" },
     sellerId: { type: Schema.Types.ObjectId, ref: "User" },
+    /** Usuario logueado (si hay sesión Auth.js). */
+    userId: { type: Schema.Types.ObjectId, ref: "User" },
+    /** ID anónimo del navegador (localStorage). */
+    sessionId: { type: String, default: "", index: true },
     meta: { type: Schema.Types.Mixed },
   },
   { timestamps: true },
@@ -32,6 +36,7 @@ const analyticsEventSchema = new Schema(
 analyticsEventSchema.index({ type: 1, createdAt: -1 });
 analyticsEventSchema.index({ sellerId: 1, type: 1, createdAt: -1 });
 analyticsEventSchema.index({ location: 1, type: 1, createdAt: -1 });
+analyticsEventSchema.index({ userId: 1, type: 1, createdAt: -1 });
 analyticsEventSchema.index({ query: 1 });
 
 export type AnalyticsEventType = (typeof EVENT_TYPES)[number];

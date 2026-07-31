@@ -3,11 +3,11 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Images, MapPin, MessageCircle, Star, Store } from "lucide-react";
+import { Images, MapPin, Star, Store } from "lucide-react";
 import { motion } from "framer-motion";
 import { StockBadge } from "@/components/parts/stock-badge";
 import { SavePartButton } from "@/components/parts/save-part-button";
-import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import { BotonWhatsApp } from "@/components/parts/boton-whatsapp";
 import type { PartDTO } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +28,6 @@ export function PartCard({ part, index = 0 }: PartCardProps) {
   const storeName = seller?.storeName || seller?.name;
   const outOfStock = part.stockQuantity <= 0;
   const detailHref = `/repuesto/${part._id}`;
-  const waHref = buildWhatsAppUrl(part);
   const sellerId = seller?._id;
 
   return (
@@ -198,32 +197,12 @@ export function PartCard({ part, index = 0 }: PartCardProps) {
             >
               Ver detalle
             </Link>
-            {outOfStock ? (
-              <span className="inline-flex h-9 flex-[1.15] items-center justify-center rounded-lg bg-muted text-sm font-medium text-muted-foreground">
-                Sin stock
-              </span>
-            ) : (
-              <a
-                href={waHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => {
-                  void fetch("/api/analytics/whatsapp-click", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      partId: part._id,
-                      sellerId,
-                      query: part.title,
-                    }),
-                  });
-                }}
-                className="inline-flex h-9 flex-[1.15] items-center justify-center gap-1.5 rounded-lg bg-[#25D366] text-sm font-medium text-white transition-colors hover:bg-[#1ebe57]"
-              >
-                <MessageCircle className="size-3.5" />
-                WhatsApp
-              </a>
-            )}
+            <BotonWhatsApp
+              part={part}
+              size="sm"
+              label="WhatsApp"
+              className="h-9 flex-[1.15] text-sm"
+            />
           </div>
         </div>
       </div>

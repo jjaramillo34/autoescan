@@ -7,7 +7,15 @@ export const metadata: Metadata = {
   description: "Guarda favoritos y retoma tus búsquedas de repuestos en Ambato.",
 };
 
-export default function RegistroCompradorPage() {
+interface PageProps {
+  searchParams: Promise<{ callbackUrl?: string }>;
+}
+
+export default async function RegistroCompradorPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const callbackUrl = params.callbackUrl || "/guardados";
+  const loginHref = `/iniciar-sesion?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+
   return (
     <div className="mx-auto max-w-md space-y-6 px-4 py-10">
       <div className="space-y-2 text-center">
@@ -22,13 +30,13 @@ export default function RegistroCompradorPage() {
       </div>
 
       <div className="rounded-xl border border-border/60 bg-card/70 p-5 backdrop-blur-sm">
-        <RegisterBuyerForm />
+        <RegisterBuyerForm callbackUrl={callbackUrl} />
       </div>
 
       <p className="text-center text-sm text-muted-foreground">
         ¿Ya tienes cuenta?{" "}
         <Link
-          href="/iniciar-sesion?callbackUrl=/guardados"
+          href={loginHref}
           className="font-medium text-primary hover:underline"
         >
           Iniciar sesión

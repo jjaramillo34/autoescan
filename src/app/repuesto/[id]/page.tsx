@@ -15,6 +15,8 @@ import {
   getPartById,
   getRelatedParts,
 } from "@/lib/parts-service";
+import { auth } from "@/auth";
+import { isWhatsAppLoginRequired } from "@/lib/whatsapp-gate";
 
 interface PartDetailProps {
   params: Promise<{ id: string }>;
@@ -36,8 +38,10 @@ export async function generateMetadata({
 
 export default async function PartDetailPage({ params }: PartDetailProps) {
   const { id } = await params;
-  const part = await getPartById(id);
+  const [part, session] = await Promise.all([getPartById(id), auth()]);
   if (!part) notFound();
+  const showAccountHint =
+    !session?.user && !isWhatsAppLoginRequired();
 
   const related = await getRelatedParts(part, 4);
   const seller = typeof part.seller === "string" ? null : part.seller;
@@ -172,6 +176,18 @@ export default async function PartDetailPage({ params }: PartDetailProps) {
               )}
             </div>
             <BotonWhatsApp part={part} size="lg" />
+            {showAccountHint && (
+              <p className="text-[11px] leading-relaxed text-muted-foreground">
+                Opcional:{" "}
+                <Link
+                  href={`/registro?callbackUrl=${encodeURIComponent(`/repuesto/${part._id}`)}`}
+                  className="font-medium text-primary hover:underline"
+                >
+                  crea una cuenta
+                </Link>{" "}
+                para guardar favoritos. WhatsApp no requiere login.
+              </p>
+            )}
             <div className="flex gap-2">
               <SavePartButton
                 partId={part._id}

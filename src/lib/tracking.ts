@@ -116,6 +116,9 @@ export async function trackAnalyticsEvent(input: {
   location?: string;
   partId?: string;
   sellerId?: string;
+  userId?: string;
+  sessionId?: string;
+  meta?: Record<string, unknown>;
 }) {
   if (!isDatabaseConfigured()) {
     const demo = await import("@/lib/demo-analytics");
@@ -123,6 +126,8 @@ export async function trackAnalyticsEvent(input: {
       demo.recordDemoWhatsappClick({
         sellerId: input.sellerId,
         partId: input.partId,
+        userId: input.userId,
+        sessionId: input.sessionId,
       });
     } else if (input.type === "part_view") {
       demo.recordDemoPartView({
@@ -148,5 +153,8 @@ export async function trackAnalyticsEvent(input: {
     location: input.location ?? "",
     partId: input.partId || undefined,
     sellerId: input.sellerId || undefined,
+    userId: input.userId || undefined,
+    sessionId: input.sessionId ?? "",
+    meta: input.meta,
   });
 }

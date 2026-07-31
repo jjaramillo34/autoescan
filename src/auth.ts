@@ -22,7 +22,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const user = await verifyCredentials(email, password);
         if (!user) return null;
 
-        if (user.role !== "vendedor" && user.role !== "admin") {
+        if (
+          user.role !== "vendedor" &&
+          user.role !== "admin" &&
+          user.role !== "comprador"
+        ) {
           return null;
         }
 
