@@ -53,12 +53,7 @@ export default async function RootLayout({
       className={`${ibmPlex.variable} ${oswald.variable} h-full`}
     >
       <body className="flex min-h-full flex-col font-sans">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ThemeProvider defaultTheme="system" enableSystem disableTransitionOnChange>
           <SiteHeader
             user={
               session?.user
