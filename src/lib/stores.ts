@@ -65,7 +65,12 @@ export async function getPublicStores(): Promise<PublicStore[]> {
       .lean();
 
     const counts = await Part.aggregate<{ _id: unknown; count: number }>([
-      { $match: { isArchived: { $ne: true } } },
+      {
+        $match: {
+          isArchived: { $ne: true },
+          moderationStatus: { $ne: "rejected" },
+        },
+      },
       { $group: { _id: "$seller", count: { $sum: 1 } } },
     ]);
     const countMap = new Map(

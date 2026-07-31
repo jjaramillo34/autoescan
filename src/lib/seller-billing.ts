@@ -184,9 +184,16 @@ async function createPendingPayment(input: {
 }
 
 export function getSupportWhatsAppPhone(): string {
-  return (
-    process.env.AUTOESCAN_SUPPORT_WHATSAPP?.trim() || "+593999999999"
-  );
+  const configured = process.env.AUTOESCAN_SUPPORT_WHATSAPP?.trim();
+  if (!configured) {
+    if (process.env.NODE_ENV === "production") {
+      console.warn(
+        "[AutoEscán] AUTOESCAN_SUPPORT_WHATSAPP no está definido. Usa un número real antes del piloto.",
+      );
+    }
+    return "+593999999999";
+  }
+  return configured;
 }
 
 function buildBillingWhatsApp(input: {

@@ -38,6 +38,9 @@ const partSchema = new Schema(
       enum: MODERATION,
       default: "approved",
     },
+    /** Motivo del rechazo (visible para el vendedor). */
+    moderationReason: { type: String, default: "" },
+    /** Motivo del reporte de comprador/admin. */
     reportReason: { type: String, default: "" },
     isFeatured: { type: Boolean, default: false },
     featuredUntil: { type: Date },

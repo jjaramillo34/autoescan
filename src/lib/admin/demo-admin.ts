@@ -50,6 +50,7 @@ export interface AdminPartModeration {
   storeName: string;
   moderationStatus: "pending" | "approved" | "rejected" | "reported";
   reportReason: string;
+  moderationReason?: string;
   isFeatured: boolean;
   images: number;
 }

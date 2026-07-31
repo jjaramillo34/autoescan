@@ -4,6 +4,7 @@ import { OnboardingChecklist } from "@/components/seller/onboarding-checklist";
 import { SellerDashboard } from "@/components/seller/seller-dashboard";
 import { StockAlertBanner } from "@/components/seller/stock-alert-banner";
 import { contactPhone } from "@/lib/phone";
+import { getSellerParts } from "@/lib/parts-service";
 import { getSellerDashboard } from "@/lib/seller-dashboard";
 import { getOnboardingStatus } from "@/lib/seller-onboarding";
 import { getSellerProfile } from "@/lib/seller-profile";
@@ -30,14 +31,15 @@ export default async function VendedorPanelPage({
   }
 
   const { bienvenida } = await searchParams;
-  const [data, profile, stockAlert] = await Promise.all([
+  const [data, profile, stockAlert, parts] = await Promise.all([
     getSellerDashboard(session.user.id),
     getSellerProfile(session.user.id),
     getSellerStockAlertBanner(session.user.id),
+    getSellerParts(session.user.id),
   ]);
 
   const onboarding = profile
-    ? getOnboardingStatus(profile, data.productCount)
+    ? getOnboardingStatus(profile, data.productCount, parts)
     : null;
 
   return (

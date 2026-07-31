@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getOrCreateClientSessionId } from "@/lib/client-session";
 import { MARCAS_COMUNES } from "@/lib/constants";
 import type { IdentifyPartResult } from "@/lib/types";
 
@@ -42,58 +43,79 @@ export function ImageSearch() {
   const [activePiece, setActivePiece] = useState<string | null>(null);
   const [excludedKeywords, setExcludedKeywords] = useState<string[]>([]);
 
-  const processFile = useCallback(async (file: File) => {
-    if (!file.type.startsWith("image/")) {
-      toast.error("Archivo no válido", {
-        description: "Sube una foto (JPG, PNG o WEBP).",
-      });
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => setPreview(String(reader.result));
-    reader.readAsDataURL(file);
-
-    setLoading(true);
-    setResult(null);
-    setActivePiece(null);
-    setExcludedKeywords([]);
-
-    try {
-      const formData = new FormData();
-      formData.append("image", file);
-
-      const res = await fetch("/api/ai/identify-part", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Error al analizar la imagen");
-      }
-
-      setResult(data);
-      setActivePiece(data.pieza);
-
-      if (data.demo) {
-        toast.message("Modo demo de IA", {
-          description:
-            "Configura GOOGLE_GEMINI_API_KEY para reconocimiento real.",
+  const processFile = useCallback(
+    async (file: File) => {
+      if (!file.type.startsWith("image/")) {
+        toast.error("Archivo no válido", {
+          description: "Sube una foto (JPG, PNG o WEBP).",
         });
-      } else {
-        toast.success("Pieza identificada");
+        return;
       }
-    } catch (error) {
-      toast.error("No se pudo analizar", {
-        description:
-          error instanceof Error ? error.message : "Intenta con otra foto",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+
+      if (file.size > 8 * 1024 * 1024) {
+        toast.error("Foto muy pesada", {
+          description: "Máximo 8 MB. Baja la calidad o elige otra imagen.",
+        });
+        return;
+      }
+
+      if (!brand) {
+        toast.message("Elige la marca del auto primero", {
+          description:
+            "Así el resultado se filtra a piezas compatibles con tu vehículo.",
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => setPreview(String(reader.result));
+      reader.readAsDataURL(file);
+
+      setLoading(true);
+      setResult(null);
+      setActivePiece(null);
+      setExcludedKeywords([]);
+
+      try {
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const res = await fetch("/api/ai/identify-part", {
+          method: "POST",
+          body: formData,
+          headers: {
+            "x-session-id": getOrCreateClientSessionId(),
+          },
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || "Error al analizar la imagen");
+        }
+
+        setResult(data);
+        setActivePiece(data.pieza);
+
+        if (data.demo) {
+          toast.message("Modo demo de IA", {
+            description:
+              "Configura GOOGLE_GEMINI_API_KEY para reconocimiento real.",
+          });
+        } else {
+          toast.success("Pieza identificada");
+        }
+      } catch (error) {
+        toast.error("No se pudo analizar", {
+          description:
+            error instanceof Error ? error.message : "Intenta con otra foto",
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [brand],
+  );
 
   function onDrop(e: React.DragEvent) {
     e.preventDefault();
@@ -254,7 +276,12 @@ export function ImageSearch() {
                 Sube la foto de la pieza
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Arrastra aquí o selecciona desde tu galería
+                {brand
+                  ? "Arrastra aquí o selecciona desde tu galería"
+                  : "Primero elige la marca del auto arriba"}
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                JPG, PNG o WEBP · máximo 8 MB
               </p>
             </div>
             <div className="flex flex-wrap justify-center gap-2">

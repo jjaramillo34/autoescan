@@ -6,8 +6,11 @@ import { PartCard } from "@/components/parts/part-card";
 import { PartsSkeleton } from "@/components/parts/parts-skeleton";
 import { EmptyParts } from "@/components/parts/empty-parts";
 import { CatalogPagination } from "@/components/parts/catalog-pagination";
+import { CatalogSort } from "@/components/parts/catalog-sort";
 import { HomeHero } from "@/components/home/home-hero";
 import { CategoryShortcuts } from "@/components/home/category-shortcuts";
+import { HowItWorks } from "@/components/home/how-it-works";
+import { StoresEntry } from "@/components/home/stores-entry";
 import { SectorChips } from "@/components/home/sector-chips";
 import { VehicleBar } from "@/components/home/vehicle-bar";
 import { RecentPartsRail } from "@/components/home/recent-parts-rail";
@@ -149,6 +152,10 @@ export default async function HomePage({ searchParams }: HomeProps) {
           <CategoryShortcuts />
         </Suspense>
 
+        <HowItWorks />
+
+        <StoresEntry />
+
         {banner && <SponsoredBanner banner={banner} />}
 
         <Suspense fallback={null}>
@@ -197,6 +204,9 @@ export default async function HomePage({ searchParams }: HomeProps) {
                 </div>
               )}
             </div>
+            <Suspense fallback={null}>
+              <CatalogSort />
+            </Suspense>
           </div>
 
           <Suspense fallback={<PartsSkeleton />}>

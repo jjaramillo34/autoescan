@@ -1,12 +1,15 @@
-import type { SellerInfo } from "@/lib/types";
+import { contactPhone, isValidEcuadorMobile } from "@/lib/phone";
+import type { PartDTO, SellerInfo } from "@/lib/types";
 
 export type OnboardingStepId =
+  | "whatsapp"
   | "logo"
   | "description"
   | "specializations"
   | "sector"
   | "hours"
-  | "first_product";
+  | "first_product"
+  | "catalog_ready";
 
 export interface OnboardingStep {
   id: OnboardingStepId;
@@ -28,8 +31,26 @@ export interface OnboardingStatus {
 export function getOnboardingStatus(
   profile: SellerInfo,
   productCount: number,
+  parts: PartDTO[] = [],
 ): OnboardingStatus {
+  const hasWhatsApp = isValidEcuadorMobile(contactPhone(profile));
+  const catalogReady = parts.some(
+    (p) =>
+      !p.isArchived &&
+      p.moderationStatus !== "rejected" &&
+      (p.images?.length ?? 0) > 0 &&
+      p.price > 0 &&
+      p.stockQuantity > 0,
+  );
+
   const steps: OnboardingStep[] = [
+    {
+      id: "whatsapp",
+      title: "Confirma tu WhatsApp de contacto",
+      detail: "Es el canal por el que te escriben los compradores.",
+      href: "/vendedor/perfil#whatsapp",
+      done: hasWhatsApp,
+    },
     {
       id: "logo",
       title: "Sube el logo de tu tienda",
@@ -71,6 +92,13 @@ export function getOnboardingStatus(
       detail: "Con código, fotos y precio para empezar a recibir WhatsApp.",
       href: "/vendedor/nuevo-repuesto",
       done: productCount > 0,
+    },
+    {
+      id: "catalog_ready",
+      title: "Deja un producto listo para vender",
+      detail: "Al menos uno con foto, precio y stock mayor a 0.",
+      href: "/vendedor/inventario",
+      done: catalogReady,
     },
   ];
 

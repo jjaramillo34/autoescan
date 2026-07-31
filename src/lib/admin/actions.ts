@@ -65,19 +65,42 @@ export async function moderatePartAction(formData: FormData): Promise<void> {
     | "approved"
     | "rejected"
     | "reported";
+  const moderationReason = String(formData.get("moderationReason") ?? "").trim();
 
   if (!isDatabaseConfigured()) {
+    const { demoModeration } = await import("@/lib/admin/demo-admin");
+    const row = demoModeration.find((p) => p.id === id);
+    if (row) {
+      row.moderationStatus = status;
+      row.moderationReason =
+        status === "rejected"
+          ? moderationReason || "No cumple las normas del catálogo."
+          : "";
+      if (status === "approved") row.reportReason = "";
+    }
     revalidatePath("/admin/moderacion");
+    revalidatePath("/vendedor/inventario");
     return;
   }
 
   await connectDB();
   await Part.findByIdAndUpdate(id, {
     moderationStatus: status,
-    ...(status === "approved" ? { reportReason: "" } : {}),
+    ...(status === "approved"
+      ? { reportReason: "", moderationReason: "" }
+      : {}),
+    ...(status === "rejected"
+      ? {
+          moderationReason:
+            moderationReason || "No cumple las normas del catálogo.",
+          isFeatured: false,
+        }
+      : {}),
   });
   revalidatePath("/admin/moderacion");
   revalidatePath("/admin/analytics");
+  revalidatePath("/vendedor/inventario");
+  revalidatePath("/");
 }
 
 export async function togglePartFeaturedAction(formData: FormData): Promise<void> {

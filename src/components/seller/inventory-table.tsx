@@ -119,7 +119,28 @@ export function InventoryTable({ parts, emptyLabel }: InventoryTableProps) {
                         Archivado
                       </span>
                     )}
+                    {part.moderationStatus === "rejected" && (
+                      <span className="text-[11px] font-medium text-red-600 dark:text-red-300">
+                        Rechazado
+                      </span>
+                    )}
+                    {part.moderationStatus === "pending" && (
+                      <span className="text-[11px] font-medium text-muted-foreground">
+                        En revisión
+                      </span>
+                    )}
+                    {part.moderationStatus === "reported" && (
+                      <span className="text-[11px] font-medium text-amber-700 dark:text-amber-300">
+                        Reportado
+                      </span>
+                    )}
                   </div>
+                  {part.moderationStatus === "rejected" &&
+                    part.moderationReason && (
+                      <p className="mt-1 text-[11px] leading-snug text-red-600/90 dark:text-red-300/90">
+                        Motivo: {part.moderationReason}
+                      </p>
+                    )}
                   <p className="mt-0.5 text-xs text-muted-foreground md:hidden">
                     {[part.partBrand, part.partCode].filter(Boolean).join(" · ") ||
                       "Sin marca / código"}

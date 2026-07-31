@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getModerationQueue } from "@/lib/admin/metrics";
 import {
   moderatePartAction,
   togglePartFeaturedAction,
 } from "@/lib/admin/actions";
+import { RejectPartForm } from "@/components/admin/reject-part-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -63,7 +65,14 @@ export default async function AdminModeracionPage() {
               return (
                 <TableRow key={item.id}>
                   <TableCell>
-                    <p className="font-medium">{item.title}</p>
+                    <p className="font-medium">
+                      <Link
+                        href={`/repuesto/${item.id}`}
+                        className="hover:text-primary hover:underline"
+                      >
+                        {item.title}
+                      </Link>
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       {item.brand} {item.model}
                     </p>
@@ -74,7 +83,7 @@ export default async function AdminModeracionPage() {
                     )}
                     {item.reportReason && (
                       <p className="mt-1 text-xs text-red-600 dark:text-red-300">
-                        {item.reportReason}
+                        Reporte: {item.reportReason}
                       </p>
                     )}
                   </TableCell>
@@ -95,13 +104,7 @@ export default async function AdminModeracionPage() {
                           Aprobar
                         </Button>
                       </form>
-                      <form action={moderatePartAction}>
-                        <input type="hidden" name="id" value={item.id} />
-                        <input type="hidden" name="status" value="rejected" />
-                        <Button size="sm" variant="outline" type="submit">
-                          Rechazar
-                        </Button>
-                      </form>
+                      <RejectPartForm partId={item.id} />
                       <form action={togglePartFeaturedAction}>
                         <input type="hidden" name="id" value={item.id} />
                         <input

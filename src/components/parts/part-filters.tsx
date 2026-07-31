@@ -14,13 +14,6 @@ import {
 } from "@/components/ui/select";
 import { CATEGORIAS, MARCAS_COMUNES } from "@/lib/constants";
 
-const SORT_OPTIONS = [
-  { value: "relevancia", label: "Relevancia" },
-  { value: "precio_asc", label: "Precio: menor a mayor" },
-  { value: "precio_desc", label: "Precio: mayor a menor" },
-  { value: "recientes", label: "Más recientes" },
-] as const;
-
 export function PartFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -124,7 +117,7 @@ export function PartFilters() {
           <Button type="submit">Buscar</Button>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-1.5">
             <Label>Marca</Label>
             <Select
@@ -206,26 +199,6 @@ export function PartFilters() {
             </Select>
           </div>
 
-          <div className="space-y-1.5">
-            <Label>Ordenar</Label>
-            <Select
-              value={searchParams.get("sort") ?? "relevancia"}
-              onValueChange={(v) =>
-                updateParam("sort", v === "relevancia" ? "" : (v ?? ""))
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Relevancia" />
-              </SelectTrigger>
-              <SelectContent>
-                {SORT_OPTIONS.map((o) => (
-                  <SelectItem key={o.value} value={o.value}>
-                    {o.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:max-w-md">

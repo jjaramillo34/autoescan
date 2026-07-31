@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { OnboardingChecklist } from "@/components/seller/onboarding-checklist";
 import { StoreProfileForm } from "@/components/seller/store-profile-form";
+import { getSellerParts } from "@/lib/parts-service";
 import { getSellerDashboard } from "@/lib/seller-dashboard";
 import { getOnboardingStatus } from "@/lib/seller-onboarding";
 import { getSellerProfile } from "@/lib/seller-profile";
@@ -20,16 +21,21 @@ export default async function SellerProfilePage() {
     redirect("/iniciar-sesion?callbackUrl=/vendedor/perfil");
   }
 
-  const [profile, dashboard] = await Promise.all([
+  const [profile, dashboard, parts] = await Promise.all([
     getSellerProfile(session.user.id),
     getSellerDashboard(session.user.id),
+    getSellerParts(session.user.id),
   ]);
 
   if (!profile) {
     redirect("/vendedor");
   }
 
-  const onboarding = getOnboardingStatus(profile, dashboard.productCount);
+  const onboarding = getOnboardingStatus(
+    profile,
+    dashboard.productCount,
+    parts,
+  );
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-6 sm:py-10">

@@ -56,6 +56,11 @@ function serializePart(doc: Record<string, unknown>): PartDTO {
     seller: sellerDto,
     isArchived: Boolean(doc.isArchived),
     isFeatured: Boolean(doc.isFeatured),
+    moderationStatus: (doc.moderationStatus as PartDTO["moderationStatus"]) ||
+      "approved",
+    moderationReason: doc.moderationReason
+      ? String(doc.moderationReason)
+      : "",
     createdAt: doc.createdAt
       ? new Date(doc.createdAt as string).toISOString()
       : undefined,
@@ -94,6 +99,7 @@ function filterDemoParts(filters: PartFilters = {}): PartDTO[] {
 
   return demoParts.filter((part) => {
     if (part.isArchived) return false;
+    if (part.moderationStatus === "rejected") return false;
     if (filters.seller) {
       const sid =
         typeof part.seller === "string" ? part.seller : part.seller._id;
@@ -261,6 +267,7 @@ export async function getParts(
 
     const query: Record<string, unknown> = {
       isArchived: { $ne: true },
+      moderationStatus: { $ne: "rejected" },
     };
     const terms = buildSearchTerms(filters);
 
@@ -407,7 +414,9 @@ export async function getPartById(id: string): Promise<PartDTO | null> {
     const part = await Part.findById(id)
       .populate("seller", SELLER_POPULATE)
       .lean();
-    if (!part || part.isArchived) return null;
+    if (!part || part.isArchived || part.moderationStatus === "rejected") {
+      return null;
+    }
 
     const seller = part.seller as { storeStatus?: string } | null;
     if (
@@ -439,6 +448,7 @@ export async function getPartsByIds(ids: string[]): Promise<PartDTO[]> {
     const parts = await Part.find({
       _id: { $in: objectIds },
       isArchived: { $ne: true },
+      moderationStatus: { $ne: "rejected" },
     })
       .populate("seller", SELLER_POPULATE)
       .lean();

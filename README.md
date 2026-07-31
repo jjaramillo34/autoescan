@@ -86,7 +86,7 @@ npm run seed
 npx vercel login
 npx vercel link
 
-# 2) Subir env (Production + Preview)
+# 2) Subir env (Production + Preview) — obligatorias
 npx vercel env add AUTH_SECRET
 npx vercel env add MONGODB_URI
 npx vercel env add GOOGLE_GEMINI_API_KEY
@@ -94,13 +94,34 @@ npx vercel env add IMAGEKIT_PUBLIC_KEY
 npx vercel env add IMAGEKIT_PRIVATE_KEY
 npx vercel env add IMAGEKIT_URL_ENDPOINT
 npx vercel env add FAST_API_KEY
-# opcional: GEMINI_MODEL, IMAGE_SEARCH_API_URL, AUTH_URL, AUTOESCAN_SUPPORT_WHATSAPP
+npx vercel env add AUTOESCAN_SUPPORT_WHATSAPP   # número real, ej. +5939...
+npx vercel env add CRON_SECRET                  # openssl rand -base64 32
 
-# 3) Deploy
+# 3) Opcionales
+# npx vercel env add GEMINI_MODEL
+# npx vercel env add IMAGE_SEARCH_API_URL
+# npx vercel env add AUTH_URL
+# npx vercel env add STRIPE_SECRET_KEY
+# npx vercel env add STRIPE_WEBHOOK_SECRET
+# npx vercel env add BILLING_ALLOW_SIMULATE      # solo Preview/dev
+
+# 4) Deploy
 npx vercel --prod
 ```
 
 Luego define `AUTH_URL` con la URL de producción y vuelve a desplegar si hace falta.
+
+### Stripe (si cobras en app)
+
+1. Crea un webhook en Stripe → `https://tu-dominio.com/api/billing/webhook`
+2. Eventos: `checkout.session.completed`
+3. Copia el signing secret a `STRIPE_WEBHOOK_SECRET`
+4. Sin `STRIPE_SECRET_KEY` el checkout sigue en modo manual + WhatsApp de soporte
+
+### Cron de stock
+
+`vercel.json` llama a `/api/cron/stock-alerts` a diario. En producción exige  
+`Authorization: Bearer $CRON_SECRET`.
 
 ## Checklist de producción (piloto Ambato)
 
@@ -112,7 +133,9 @@ Luego define `AUTH_URL` con la URL de producción y vuelve a desplegar si hace f
 - [ ] `FAST_API_KEY` (+ `IMAGE_SEARCH_API_URL` si aplica)
 - [ ] `IMAGEKIT_PUBLIC_KEY`, `IMAGEKIT_PRIVATE_KEY`, `IMAGEKIT_URL_ENDPOINT`
 - [ ] `AUTH_URL` (URL canónica de producción)
-- [ ] `AUTOESCAN_SUPPORT_WHATSAPP` (solicitudes de plan/impulsos)
+- [ ] `AUTOESCAN_SUPPORT_WHATSAPP` (**obligatorio** en prod — no uses el fallback demo)
+- [ ] `CRON_SECRET` (alertas de stock)
+- [ ] Stripe opcional: `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET`
 
 ### 2. Datos y cuentas
 

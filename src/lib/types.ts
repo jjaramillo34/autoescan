@@ -36,6 +36,9 @@ export interface PartDTO {
   seller: SellerInfo | string;
   isArchived?: boolean;
   isFeatured?: boolean;
+  moderationStatus?: "pending" | "approved" | "rejected" | "reported";
+  /** Motivo si fue rechazado por moderación. */
+  moderationReason?: string;
   createdAt?: string;
   updatedAt?: string;
 }
