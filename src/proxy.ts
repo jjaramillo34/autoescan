@@ -11,7 +11,8 @@ export async function proxy(request: Request) {
   const isAdminRoute = url.pathname.startsWith("/admin");
   const isAuthPage =
     url.pathname.startsWith("/iniciar-sesion") ||
-    url.pathname.startsWith("/registro-vendedor");
+    url.pathname.startsWith("/registro-vendedor") ||
+    url.pathname === "/registro";
 
   if (isAdminRoute) {
     if (session?.user?.role !== "admin") {
@@ -33,8 +34,9 @@ export async function proxy(request: Request) {
   }
 
   if (isAuthPage && session?.user) {
+    const role = session.user.role;
     const dest =
-      session.user.role === "admin" ? "/admin" : "/vendedor";
+      role === "admin" ? "/admin" : role === "vendedor" ? "/vendedor" : "/guardados";
     return NextResponse.redirect(new URL(dest, url.origin));
   }
 
@@ -47,5 +49,6 @@ export const proxyConfig = {
     "/admin/:path*",
     "/iniciar-sesion",
     "/registro-vendedor",
+    "/registro",
   ],
 };

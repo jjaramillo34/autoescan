@@ -17,7 +17,10 @@ import {
 } from "@/lib/parts-service";
 import { parsePartsCsv } from "@/lib/csv";
 import { MAX_PART_IMAGES } from "@/lib/constants";
-import { consumeAiCredit } from "@/lib/ai-credits";
+import {
+  assertCanConsumeAiCredit,
+  consumeAiCredit,
+} from "@/lib/ai-credits";
 import { connectDB, isDatabaseConfigured } from "@/lib/db";
 import { User } from "@/lib/models/User";
 import { PLANS, type PlanId } from "@/lib/plans";
@@ -133,6 +136,10 @@ export async function createPartAction(input: CreatePartInput) {
 
     let description = input.description?.trim() ?? "";
     if (!description) {
+      const credit = await assertCanConsumeAiCredit(session.user.id);
+      if (!credit.ok) {
+        return { ok: false as const, error: credit.error };
+      }
       description = await generatePartDescription({
         title: input.title,
         brand: input.brand,
@@ -142,7 +149,10 @@ export async function createPartAction(input: CreatePartInput) {
         partBrand: input.partBrand,
         partCode: input.partCode,
       });
-      await consumeAiCredit(session.user.id);
+      const spent = await consumeAiCredit(session.user.id);
+      if (!spent.ok) {
+        return { ok: false as const, error: spent.error };
+      }
     }
 
     const part = await createPart({
@@ -179,9 +189,27 @@ export async function generateDescriptionAction(
     };
   }
   try {
+    const credit = await assertCanConsumeAiCredit(session.user.id);
+    if (!credit.ok) {
+      return { ok: false as const, error: credit.error };
+    }
     const description = await generatePartDescription(input);
-    await consumeAiCredit(session.user.id);
-    return { ok: true as const, description };
+    const spent = await consumeAiCredit(session.user.id);
+    if (!spent.ok) {
+      return { ok: false as const, error: spent.error };
+    }
+    const remaining = Math.max(0, credit.credits.remaining - 1);
+    const total = credit.credits.included + credit.credits.extra;
+    const usedAfter = credit.credits.used + 1;
+    const softWarned =
+      total > 0 && usedAfter / total >= 0.9;
+    return {
+      ok: true as const,
+      description,
+      creditsRemaining: remaining,
+      softWarned,
+      depleted: remaining <= 0,
+    };
   } catch (error) {
     console.error(error);
     return {
@@ -207,22 +235,33 @@ export async function importPartsCsvAction(csvText: string) {
   }
 
   try {
-    const enriched = await Promise.all(
-      parsed.parts.map(async (p) => {
-        if (p.description?.trim()) return p;
-        const description = await generatePartDescription({
-          title: p.title,
-          brand: p.brand,
-          model: p.model,
-          yearRange: p.yearRange,
-          category: p.category,
-          partBrand: p.partBrand,
-          partCode: p.partCode,
+    const enriched = [];
+    for (const p of parsed.parts) {
+      if (p.description?.trim()) {
+        enriched.push(p);
+        continue;
+      }
+      const credit = await assertCanConsumeAiCredit(session.user.id);
+      if (!credit.ok) {
+        // Sin créditos: deja descripción corta local, no llama Gemini.
+        enriched.push({
+          ...p,
+          description: `${p.title} para ${p.brand} ${p.model} (${p.yearRange}).`,
         });
-        await consumeAiCredit(session.user.id);
-        return { ...p, description };
-      }),
-    );
+        continue;
+      }
+      const description = await generatePartDescription({
+        title: p.title,
+        brand: p.brand,
+        model: p.model,
+        yearRange: p.yearRange,
+        category: p.category,
+        partBrand: p.partBrand,
+        partCode: p.partCode,
+      });
+      await consumeAiCredit(session.user.id);
+      enriched.push({ ...p, description });
+    }
     const { created, updated } = await upsertPartsForSeller(
       enriched,
       session.user.id,

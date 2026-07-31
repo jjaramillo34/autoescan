@@ -102,7 +102,17 @@ export function EditPartDialog({ part }: EditPartDialogProps) {
       });
       if (result.ok) {
         setDescription(result.description);
-        toast.success("Descripción generada con IA");
+        if (result.depleted) {
+          toast.warning("Último crédito IA del mes usado.");
+        } else if (result.softWarned) {
+          toast.warning(
+            `Cupo IA al límite (${result.creditsRemaining} restantes este mes).`,
+          );
+        } else {
+          toast.success(
+            `Descripción generada · ${result.creditsRemaining} créditos IA restantes`,
+          );
+        }
       } else {
         toast.error(result.error);
       }

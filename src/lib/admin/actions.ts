@@ -72,8 +72,12 @@ export async function moderatePartAction(formData: FormData): Promise<void> {
   }
 
   await connectDB();
-  await Part.findByIdAndUpdate(id, { moderationStatus: status });
+  await Part.findByIdAndUpdate(id, {
+    moderationStatus: status,
+    ...(status === "approved" ? { reportReason: "" } : {}),
+  });
   revalidatePath("/admin/moderacion");
+  revalidatePath("/admin/analytics");
 }
 
 export async function togglePartFeaturedAction(formData: FormData): Promise<void> {
@@ -106,6 +110,16 @@ export async function savePlatformSettingsAction(
   const geminiCostPerRequest = Number(formData.get("geminiCostPerRequest"));
   const aiCostAlertPercent = Number(formData.get("aiCostAlertPercent"));
   const aiRateLimitPerIpHour = Number(formData.get("aiRateLimitPerIpHour"));
+  const hasBudget = formData.has("geminiMonthlyBudgetUsd");
+  const geminiMonthlyBudgetUsd = hasBudget
+    ? Number(formData.get("geminiMonthlyBudgetUsd"))
+    : undefined;
+  const hasHardStop = formData.has("geminiBudgetHardStop");
+  const geminiBudgetHardStop = hasHardStop
+    ? String(formData.get("geminiBudgetHardStop")) === "true" ||
+      String(formData.get("geminiBudgetHardStop")) === "on" ||
+      String(formData.get("geminiBudgetHardStop")) === "1"
+    : undefined;
   const billingProvider = String(formData.get("billingProvider") ?? "manual");
   const homeBannerText = String(formData.get("homeBannerText") ?? "");
   const hasSellerField = formData.has("homeBannerSellerId");
@@ -117,6 +131,12 @@ export async function savePlatformSettingsAction(
     platformSettingsDemo.geminiCostPerRequest = geminiCostPerRequest;
     platformSettingsDemo.aiCostAlertPercent = aiCostAlertPercent;
     platformSettingsDemo.aiRateLimitPerIpHour = aiRateLimitPerIpHour;
+    if (geminiMonthlyBudgetUsd !== undefined && Number.isFinite(geminiMonthlyBudgetUsd)) {
+      platformSettingsDemo.geminiMonthlyBudgetUsd = geminiMonthlyBudgetUsd;
+    }
+    if (geminiBudgetHardStop !== undefined) {
+      platformSettingsDemo.geminiBudgetHardStop = geminiBudgetHardStop;
+    }
     platformSettingsDemo.billingProvider =
       billingProvider as typeof platformSettingsDemo.billingProvider;
     platformSettingsDemo.homeBannerText = homeBannerText;
@@ -139,6 +159,13 @@ export async function savePlatformSettingsAction(
       aiRateLimitPerIpHour,
       billingProvider,
       homeBannerText,
+      ...(geminiMonthlyBudgetUsd !== undefined &&
+      Number.isFinite(geminiMonthlyBudgetUsd)
+        ? { geminiMonthlyBudgetUsd }
+        : {}),
+      ...(geminiBudgetHardStop !== undefined
+        ? { geminiBudgetHardStop }
+        : {}),
       ...(homeBannerSellerId !== undefined ? { homeBannerSellerId } : {}),
     },
     { upsert: true },
@@ -153,18 +180,11 @@ export async function savePlatformSettingsAction(
 export async function markPaymentPaidAction(formData: FormData): Promise<void> {
   await guard();
   const id = String(formData.get("id") ?? "");
-
-  if (!isDatabaseConfigured()) {
-    revalidatePath("/admin/billing");
-    return;
-  }
-
-  await connectDB();
-  await Payment.findByIdAndUpdate(id, {
-    status: "paid",
-    paidAt: new Date(),
-  });
+  const { fulfillPaidPayment } = await import("@/lib/billing-fulfill");
+  await fulfillPaidPayment(id);
   revalidatePath("/admin/billing");
+  revalidatePath("/admin/vendedores");
+  revalidatePath("/vendedor/impulsos");
 }
 
 /** Simula webhook de cobro fallido → pausa tienda. */

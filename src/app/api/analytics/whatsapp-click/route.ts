@@ -7,6 +7,9 @@ export async function POST(request: Request) {
       partId?: string;
       sellerId?: string;
       query?: string;
+      brand?: string;
+      model?: string;
+      location?: string;
     };
 
     await trackAnalyticsEvent({
@@ -14,6 +17,9 @@ export async function POST(request: Request) {
       partId: body.partId,
       sellerId: body.sellerId,
       query: body.query,
+      brand: body.brand,
+      model: body.model,
+      location: body.location,
     });
 
     return NextResponse.json({ ok: true });

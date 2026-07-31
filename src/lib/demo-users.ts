@@ -21,6 +21,7 @@ export interface DemoAuthUser {
 
 const DEMO_PASSWORD_HASH = bcrypt.hashSync("Vendedor123!", 10);
 const ADMIN_PASSWORD_HASH = bcrypt.hashSync("Admin123!", 10);
+const BUYER_PASSWORD_HASH = bcrypt.hashSync("Comprador123!", 10);
 
 let demoUsers: DemoAuthUser[] = [
   {
@@ -33,6 +34,17 @@ let demoUsers: DemoAuthUser[] = [
     city: "Ambato",
     province: "Tungurahua",
     storeName: "AutoEscán Admin",
+  },
+  {
+    id: "000000000000000000000088",
+    name: "Ana Compradora",
+    email: "comprador@autoescan.ec",
+    passwordHash: BUYER_PASSWORD_HASH,
+    role: "comprador",
+    phone: "+593991112233",
+    city: "Ambato",
+    province: "Tungurahua",
+    storeName: "Ana Compradora",
   },
   {
     id: DEMO_SELLER_ID,

@@ -69,11 +69,17 @@ const userSchema = new Schema(
     aiCreditsIncluded: { type: Number, default: 100 },
     aiCreditsUsed: { type: Number, default: 0 },
     aiCreditsExtra: { type: Number, default: 0 },
+    /** Mes del cupo IA (YYYY-MM). Si cambia, se reinicia `aiCreditsUsed`. */
+    aiCreditsPeriodKey: { type: String, default: "" },
     featuredUntil: { type: Date },
     aiPriority: { type: Boolean, default: false },
     homeBannerUntil: { type: Date },
     stripeCustomerId: { type: String },
     payphoneSubscriptionId: { type: String },
+    /** Última vez que el cron generó digest de stock bajo. */
+    lastStockAlertAt: { type: Date },
+    /** Digest pendiente de mostrar en el panel del vendedor. */
+    stockAlertPending: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

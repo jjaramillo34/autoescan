@@ -1,0 +1,27 @@
+{
+  "name": "AutoEscán",
+  "short_name": "AutoEscán",
+  "description": "Repuestos automotrices en Ambato, Tungurahua. Catálogo local y búsqueda por foto.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#1a1f2e",
+  "theme_color": "#c45c26",
+  "lang": "es-EC",
+  "categories": ["shopping", "business"],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -30,7 +30,8 @@ export interface PlanDefinition {
 
 /**
  * Precios anuales pensados para locales de Ambato/Tungurahua.
- * Equivalente mensual solo es referencia (~precio/12).
+ * Créditos IA: ~8% del fee mensual cubre costo Gemini + 10% margen
+ * (ver `gemini-pricing.ts`).
  */
 export const PLANS: Record<PlanId, PlanDefinition> = {
   basico: {
@@ -38,33 +39,33 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
     name: "Básico",
     priceUsdAnnual: 99,
     productLimit: 50,
-    aiCreditsMonthly: 80,
+    aiCreditsMonthly: 800,
     featuredSlots: 0,
     aiPriority: false,
     description:
-      "Pago anual. Ideal para un local pequeño en Ambato (~$8.25/mes).",
+      "Pago anual. Local pequeño en Ambato (~$8.25/mes) · 800 créditos IA/mes.",
   },
   pro: {
     id: "pro",
     name: "Pro",
     priceUsdAnnual: 199,
     productLimit: 300,
-    aiCreditsMonthly: 400,
+    aiCreditsMonthly: 1800,
     featuredSlots: 5,
     aiPriority: true,
     description:
-      "Pago anual. Más visibilidad + IA (~$16.60/mes). El más recomendado.",
+      "Pago anual. Más visibilidad + IA (~$16.60/mes) · 1800 créditos IA/mes.",
   },
   empresa: {
     id: "empresa",
     name: "Empresa",
     priceUsdAnnual: 399,
     productLimit: 2000,
-    aiCreditsMonthly: 1500,
+    aiCreditsMonthly: 3500,
     featuredSlots: 20,
     aiPriority: true,
     description:
-      "Pago anual. Multi-local / mayor inventario (~$33.25/mes).",
+      "Pago anual. Multi-local (~$33.25/mes) · 3500 créditos IA/mes.",
   },
 };
 
@@ -77,11 +78,18 @@ export function planMonthlyEquivalent(plan: PlanDefinition): number {
   return Number((plan.priceUsdAnnual / 12).toFixed(2));
 }
 
-/** Costo estimado por request Gemini (USD) — ajustable en settings. */
-export const DEFAULT_GEMINI_COST_PER_REQUEST = 0.002;
+/**
+ * Costo estimado por request Gemini (USD), blend foto+descripción.
+ * Calculado en `gemini-pricing.ts` (~$0.00063 con tarifas 2026 Flash).
+ * Ajustable en admin → Control IA.
+ */
+export const DEFAULT_GEMINI_COST_PER_REQUEST = 0.00063;
 
 /** Alerta si costo IA supera este % de ingresos del periodo. */
 export const DEFAULT_AI_COST_ALERT_PERCENT = 25;
+
+/** Presupuesto mensual Gemini de la plataforma (búsquedas por foto, etc.). */
+export const DEFAULT_GEMINI_MONTHLY_BUDGET_USD = 30;
 
 /** Upsells: cobro puntual (no suscripción anual). */
 export const UPSELLS = {

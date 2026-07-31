@@ -4,3 +4,4 @@ export { Payment, type IPayment } from "./Payment";
 export { AiUsage, type IAiUsage } from "./AiUsage";
 export { AnalyticsEvent, type IAnalyticsEvent } from "./AnalyticsEvent";
 export { PlatformSettings, type IPlatformSettings } from "./PlatformSettings";
+export { SavedFavorite, type ISavedFavorite } from "./SavedFavorite";

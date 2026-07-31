@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   AlertTriangle,
   MessageCircle,
+  MessageSquareText,
   Package,
   Sparkles,
   Star,
@@ -9,6 +10,7 @@ import {
   Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SellerInsightsPanel } from "@/components/seller/seller-insights";
 import type { SellerDashboardDTO } from "@/lib/seller-dashboard";
 import { buildStockAlertWhatsAppUrl } from "@/lib/whatsapp";
 
@@ -81,6 +83,12 @@ export function SellerDashboard({
           <Link href="/vendedor/inventario">Ver inventario</Link>
         </Button>
         <Button asChild size="sm" variant="outline" className="gap-1.5">
+          <Link href="/vendedor/respuestas">
+            <MessageSquareText className="size-3.5" />
+            Respuestas WA
+          </Link>
+        </Button>
+        <Button asChild size="sm" variant="outline" className="gap-1.5">
           <Link href="/vendedor/impulsos">
             <Zap className="size-3.5" />
             Planes e impulsos
@@ -99,17 +107,34 @@ export function SellerDashboard({
         </Button>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <StatCard
           label="Plan"
           value={data.planName}
           hint={`${data.productCount}/${data.productLimit} productos`}
         />
         <StatCard
+          label="Vistas (7 días)"
+          value={data.views.last7Days}
+          hint={`${data.views.total} total`}
+        />
+        <StatCard
           label="WhatsApp (7 días)"
           value={data.whatsapp.last7Days}
           hint={`${data.whatsapp.total} total`}
           tone="green"
+        />
+        <StatCard
+          label="Vista → WA"
+          value={`${data.views.conversionViewToWa}%`}
+          hint="Conversión últimos 7 días"
+          tone={
+            data.views.conversionViewToWa >= 20
+              ? "green"
+              : data.views.conversionViewToWa >= 10
+                ? "amber"
+                : "default"
+          }
         />
         <StatCard
           label="Créditos IA"
@@ -128,6 +153,8 @@ export function SellerDashboard({
           tone="amber"
         />
       </div>
+
+      <SellerInsightsPanel data={data} />
 
       <div className="grid gap-4 lg:grid-cols-2">
         <section className="rounded-xl border border-border/60 bg-card/50 p-4">
@@ -169,9 +196,27 @@ export function SellerDashboard({
             <Sparkles className="size-4 text-primary" />
             <h2 className="font-heading text-lg tracking-wide">Créditos IA</h2>
           </div>
+          {data.aiCredits.depleted && (
+            <p className="mb-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-700 dark:text-red-300">
+              Cupo del mes agotado ({data.aiCredits.periodKey}). Se renueva el
+              próximo mes o pide pack en Impulsos.
+            </p>
+          )}
+          {!data.aiCredits.depleted && data.aiCredits.softWarned && (
+            <p className="mb-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-800 dark:text-amber-200">
+              Vas al {data.aiCredits.usagePercent}% del cupo mensual. Usa IA con
+              criterio o amplía en Impulsos.
+            </p>
+          )}
           <div className="mb-2 h-2 overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full rounded-full bg-primary transition-all"
+              className={`h-full rounded-full transition-all ${
+                data.aiCredits.depleted
+                  ? "bg-red-500"
+                  : data.aiCredits.softWarned
+                    ? "bg-amber-500"
+                    : "bg-primary"
+              }`}
               style={{ width: `${creditPct}%` }}
             />
           </div>
@@ -179,8 +224,9 @@ export function SellerDashboard({
             Incluidos {data.aiCredits.included}
             {data.aiCredits.extra > 0
               ? ` + ${data.aiCredits.extra} extra`
-              : ""}
-            . Se consumen al generar descripciones con Gemini.
+              : ""}{" "}
+            · periodo {data.aiCredits.periodKey}. Se consumen al generar
+            descripciones con Gemini.
           </p>
           <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
             <div className="rounded-lg bg-muted/50 px-2 py-2">

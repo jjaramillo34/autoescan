@@ -24,6 +24,8 @@ const paymentSchema = new Schema(
     description: { type: String, default: "" },
     invoiceUrl: { type: String, default: "" },
     paidAt: { type: Date },
+    /** p.ej. { planId: "pro" } o { upsellKey: "destacado" } */
+    meta: { type: Schema.Types.Mixed, default: {} },
   },
   { timestamps: true },
 );

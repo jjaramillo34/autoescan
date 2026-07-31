@@ -86,7 +86,14 @@ export function PartCard({ part, index = 0 }: PartCardProps) {
               {gallery.length}
             </div>
           )}
-          <SavePartButton partId={part._id} partTitle={part.title} />
+          <SavePartButton
+            partId={part._id}
+            partTitle={part.title}
+            sellerId={sellerId}
+            brand={part.brand}
+            model={part.model}
+            location={part.location}
+          />
         </div>
 
         <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-2.5">

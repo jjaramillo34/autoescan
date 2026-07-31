@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="AutoEscán">
+  <rect width="512" height="512" rx="96" fill="#1a1f2e"/>
+  <rect x="48" y="48" width="416" height="416" rx="72" fill="#c45c26"/>
+  <path fill="#f7f5f0" d="M156 330c0-78 48-130 100-130s100 52 100 130h-48c0-50-28-82-52-82s-52 32-52 82h-48z"/>
+  <circle cx="256" cy="188" r="46" fill="#f7f5f0"/>
+  <rect x="214" y="348" width="84" height="28" rx="8" fill="#1a1f2e"/>
+</svg>

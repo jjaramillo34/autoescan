@@ -14,7 +14,7 @@ interface LoginFormProps {
 }
 
 export function LoginForm({
-  callbackUrl = "/vendedor",
+  callbackUrl = "/",
 }: LoginFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -86,12 +86,19 @@ export function LoginForm({
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">
-        ¿Aún no tienes cuenta?{" "}
+        ¿Buscas repuestos?{" "}
+        <Link
+          href="/registro"
+          className="font-medium text-primary hover:underline"
+        >
+          Crear cuenta
+        </Link>
+        {" · "}
         <Link
           href="/registro-vendedor"
           className="font-medium text-primary hover:underline"
         >
-          Regístrate como vendedor
+          Soy vendedor
         </Link>
       </p>
 
@@ -102,6 +109,10 @@ export function LoginForm({
         </p>
         <p>
           Admin: <code>admin@autoescan.ec</code> / <code>Admin123!</code>
+        </p>
+        <p>
+          Comprador: <code>comprador@autoescan.ec</code> /{" "}
+          <code>Comprador123!</code>
         </p>
       </div>
     </form>

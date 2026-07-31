@@ -28,7 +28,7 @@ export function UserMenu({ user }: UserMenuProps) {
       <Button asChild variant="secondary" size="sm" className="gap-1.5">
         <Link href="/iniciar-sesion">
           <LogIn className="size-3.5" />
-          <span className="hidden sm:inline">Vendedores</span>
+          <span className="hidden sm:inline">Ingresar</span>
         </Link>
       </Button>
     );
@@ -58,6 +58,15 @@ export function UserMenu({ user }: UserMenuProps) {
           <DropdownMenuItem asChild>
             <Link href="/admin">Panel super-admin</Link>
           </DropdownMenuItem>
+        ) : user.role === "comprador" ? (
+          <>
+            <DropdownMenuItem asChild>
+              <Link href="/guardados">Mis favoritos</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/">Catálogo</Link>
+            </DropdownMenuItem>
+          </>
         ) : (
           <>
             <DropdownMenuItem asChild>

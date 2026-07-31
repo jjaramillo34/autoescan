@@ -3,7 +3,7 @@ import { LoginForm } from "@/components/auth/login-form";
 
 export const metadata: Metadata = {
   title: "Iniciar sesión",
-  description: "Acceso seguro para vendedores de AutoEscán en Ambato.",
+  description: "Acceso a AutoEscán para compradores, vendedores y admin.",
 };
 
 interface PageProps {
@@ -23,8 +23,8 @@ export default async function IniciarSesionPage({ searchParams }: PageProps) {
           Iniciar sesión
         </h1>
         <p className="text-sm text-muted-foreground">
-          Solo vendedores autenticados pueden gestionar inventario y cargar
-          productos.
+          Compradores: favoritos sincronizados. Vendedores: inventario y
+          panel.
         </p>
       </div>
 

@@ -49,6 +49,9 @@ export function BotonWhatsApp({
               partId: part._id,
               sellerId,
               query: part.title,
+              brand: part.brand,
+              model: part.model,
+              location: part.location,
             }),
           });
         }}

@@ -42,8 +42,7 @@ export default async function SellerImpulsosPage() {
           Planes e impulsos
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Solicita un plan o un impulso. Coordinamos el pago por WhatsApp hasta
-          activar cobro automático.
+          Paga en línea con Stripe (si está configurado) o coordina por WhatsApp.
         </p>
       </div>
 

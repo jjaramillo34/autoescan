@@ -68,7 +68,23 @@ async function seed() {
       aiCreditsIncluded: Number,
       aiCreditsUsed: Number,
       aiCreditsExtra: Number,
+      aiCreditsPeriodKey: String,
       aiPriority: Boolean,
+    },
+    { timestamps: true },
+  );
+
+  const platformSettingsSchema = new mongoose.Schema(
+    {
+      key: { type: String, unique: true },
+      geminiCostPerRequest: Number,
+      aiCostAlertPercent: Number,
+      aiRateLimitPerIpHour: Number,
+      geminiMonthlyBudgetUsd: Number,
+      geminiBudgetHardStop: Boolean,
+      billingProvider: String,
+      homeBannerText: String,
+      homeBannerSellerId: String,
     },
     { timestamps: true },
   );
@@ -100,6 +116,9 @@ async function seed() {
     {
       type: String,
       query: String,
+      brand: String,
+      model: String,
+      location: String,
       partId: { type: mongoose.Schema.Types.ObjectId, ref: "Part" },
       sellerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     },
@@ -111,17 +130,28 @@ async function seed() {
   const AnalyticsEvent =
     mongoose.models.AnalyticsEvent ||
     mongoose.model("AnalyticsEvent", analyticsSchema);
+  const PlatformSettings =
+    mongoose.models.PlatformSettings ||
+    mongoose.model("PlatformSettings", platformSettingsSchema);
 
   await Part.deleteMany({});
   await AnalyticsEvent.deleteMany({
     sellerId: new mongoose.Types.ObjectId(DEMO_SELLER_ID),
   });
   await User.deleteMany({
-    email: { $in: ["vendedor@autoescan.ec", "admin@autoescan.ec"] },
+    email: {
+      $in: [
+        "vendedor@autoescan.ec",
+        "admin@autoescan.ec",
+        "ficoa@autoescan.ec",
+        "comprador@autoescan.ec",
+      ],
+    },
   });
 
   const passwordHash = await bcrypt.hash("Vendedor123!", 12);
   const adminHash = await bcrypt.hash("Admin123!", 12);
+  const buyerHash = await bcrypt.hash("Comprador123!", 12);
   const periodEnd = new Date();
   periodEnd.setFullYear(periodEnd.getFullYear() + 1);
 
@@ -138,6 +168,23 @@ async function seed() {
     storeStatus: "active",
     planId: "empresa",
     billingStatus: "active",
+  });
+
+  await User.create({
+    _id: new mongoose.Types.ObjectId("000000000000000000000088"),
+    name: "Ana Compradora",
+    email: "comprador@autoescan.ec",
+    passwordHash: buyerHash,
+    role: "comprador",
+    phone: "+593991112233",
+    city: "Ambato",
+    province: "Tungurahua",
+    storeName: "Ana Compradora",
+    storeStatus: "active",
+    planId: "basico",
+    billingStatus: "active",
+    productLimit: 0,
+    aiCreditsIncluded: 0,
   });
 
   const seller = await User.create({
@@ -161,10 +208,37 @@ async function seed() {
     billingStatus: "active",
     currentPeriodEnd: periodEnd,
     productLimit: 300,
-    aiCreditsIncluded: 500,
+    aiCreditsIncluded: 1800,
     aiCreditsUsed: 128,
     aiCreditsExtra: 50,
+    aiCreditsPeriodKey: new Date().toISOString().slice(0, 7),
     aiPriority: true,
+  });
+
+  const seller2 = await User.create({
+    _id: new mongoose.Types.ObjectId("000000000000000000000002"),
+    name: "Luis Paredes",
+    email: "ficoa@autoescan.ec",
+    passwordHash,
+    role: "vendedor",
+    phone: "+593998877665",
+    whatsappPhone: "+593998877665",
+    city: "Ambato",
+    province: "Tungurahua",
+    storeName: "AutoPartes Ficoa",
+    storeDescription: "Frenos y sensores en Ficoa.",
+    storeSpecializations: ["Frenos", "Eléctrico"],
+    storeSector: "Ficoa",
+    businessHours: "Lun–Vie 9:00–18:00",
+    storeStatus: "active",
+    planId: "basico",
+    billingStatus: "active",
+    currentPeriodEnd: periodEnd,
+    productLimit: 80,
+    aiCreditsIncluded: 800,
+    aiCreditsUsed: 12,
+    aiCreditsExtra: 0,
+    aiCreditsPeriodKey: new Date().toISOString().slice(0, 7),
   });
 
   const featuredUntil = new Date();
@@ -390,26 +464,130 @@ async function seed() {
     },
   ]);
 
+  // Misma SKU en otra tienda → comparador de precios admin.
+  await Part.insertMany([
+    {
+      title: "Pastillas de freno delanteras",
+      description: "Juego cerámico compatible Aveo (oferta Ficoa).",
+      brand: "Chevrolet",
+      model: "Aveo",
+      yearRange: "2012-2018",
+      category: "Frenos",
+      partBrand: "TRW",
+      partCode: "GDB1330",
+      price: 34.9,
+      stockQuantity: 6,
+      images: [IMG.brakes],
+      location: "Ficoa",
+      seller: seller2._id,
+    },
+    {
+      title: "Sensor de oxígeno (sonda lambda)",
+      description: "Sensor O2 compatible Yaris.",
+      brand: "Toyota",
+      model: "Yaris",
+      yearRange: "2006-2013",
+      category: "Eléctrico",
+      partBrand: "Denso",
+      partCode: "234-9005",
+      price: 52,
+      stockQuantity: 4,
+      images: [IMG.spark],
+      location: "Ficoa",
+      seller: seller2._id,
+    },
+  ]);
+
   const top = inserted.slice(0, 3);
   const waEvents = [];
   for (let i = 0; i < 14; i++) waEvents.push({ part: top[0], daysAgo: i % 5 });
   for (let i = 0; i < 9; i++) waEvents.push({ part: top[1], daysAgo: i % 6 });
   for (let i = 0; i < 7; i++) waEvents.push({ part: top[2], daysAgo: i % 4 });
 
-  await AnalyticsEvent.insertMany(
-    waEvents.map(({ part, daysAgo }) => ({
+  const viewEvents = [];
+  for (let i = 0; i < 52; i++) viewEvents.push({ part: top[0], daysAgo: i % 7 });
+  for (let i = 0; i < 38; i++) viewEvents.push({ part: top[1], daysAgo: i % 7 });
+  for (let i = 0; i < 29; i++) viewEvents.push({ part: top[2], daysAgo: i % 7 });
+
+  const searchQueries = [
+    { query: "sonda lambda", brand: "Chevrolet", model: "Aveo", n: 18 },
+    { query: "sensor de oxigeno", brand: "Toyota", model: "Yaris", n: 14 },
+    { query: "pastillas freno", brand: "Hyundai", model: "Accent", n: 12 },
+    { query: "amortiguador", brand: "Nissan", model: "Versa", n: 10 },
+    { query: "radiador aire acondicionado", brand: "Kia", model: "Rio", n: 9 },
+    { query: "bomba de agua", brand: "Chevrolet", model: "Spark", n: 7 },
+  ];
+  const searchEvents = searchQueries.flatMap(({ query, brand, model, n }) =>
+    Array.from({ length: n }, (_, i) => ({
+      type: "search" as const,
+      query,
+      brand,
+      model,
+      location: "Centro de Ambato",
+      createdAt: new Date(Date.now() - (i % 20) * 24 * 60 * 60 * 1000),
+    })),
+  );
+
+  const favoriteEvents = top.flatMap((part, idx) =>
+    Array.from({ length: 8 - idx * 2 }, (_, i) => ({
+      type: "favorite" as const,
+      query: part.title,
+      brand: part.brand,
+      model: part.model,
+      location: part.location,
+      partId: part._id,
+      sellerId: seller._id,
+      createdAt: new Date(Date.now() - (i % 10) * 24 * 60 * 60 * 1000),
+    })),
+  );
+
+  await AnalyticsEvent.insertMany([
+    ...waEvents.map(({ part, daysAgo }) => ({
       type: "whatsapp_click",
       query: part.title,
+      brand: part.brand,
+      model: part.model,
+      location: part.location,
       partId: part._id,
       sellerId: seller._id,
       createdAt: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000),
     })),
+    ...viewEvents.map(({ part, daysAgo }) => ({
+      type: "part_view",
+      query: part.title,
+      brand: part.brand,
+      model: part.model,
+      location: part.location,
+      partId: part._id,
+      sellerId: seller._id,
+      createdAt: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000),
+    })),
+    ...searchEvents,
+    ...favoriteEvents,
+  ]);
+
+  await PlatformSettings.findOneAndUpdate(
+    { key: "default" },
+    {
+      key: "default",
+      geminiCostPerRequest: 0.00063,
+      aiCostAlertPercent: 25,
+      aiRateLimitPerIpHour: 30,
+      geminiMonthlyBudgetUsd: 30,
+      geminiBudgetHardStop: true,
+      billingProvider: "manual",
+    },
+    { upsert: true, new: true },
   );
 
   console.log("Seed completado.");
-  console.log(`Partes: ${inserted.length} · WhatsApp clicks demo: ${waEvents.length}`);
-  console.log("Vendedor: vendedor@autoescan.ec / Vendedor123!");
-  console.log("Admin:    admin@autoescan.ec / Admin123!");
+  console.log(
+    `Partes: ${inserted.length} · WA: ${waEvents.length} · Vistas: ${viewEvents.length} · Búsquedas: ${searchEvents.length} · Favoritos: ${favoriteEvents.length}`,
+  );
+  console.log("Vendedor:  vendedor@autoescan.ec / Vendedor123!");
+  console.log("Admin:     admin@autoescan.ec / Admin123!");
+  console.log("Comprador: comprador@autoescan.ec / Comprador123!");
+  console.log("IA: presupuesto Gemini $30/mes · hard stop activo");
   await mongoose.disconnect();
 }
 

@@ -50,6 +50,7 @@ export async function requestPlanUpgrade(
     amountUsd: plan.priceUsdAnnual,
     type: "subscription",
     description,
+    meta: { planId },
   });
 
   return {
@@ -79,6 +80,7 @@ export async function requestUpsell(
     amountUsd: upsell.priceUsd,
     type: UPSELL_TO_PAYMENT[upsellKey],
     description,
+    meta: { upsellKey },
   });
 
   return {
@@ -134,6 +136,7 @@ async function createPendingPayment(input: {
   amountUsd: number;
   type: PaymentType;
   description: string;
+  meta?: Record<string, unknown>;
 }): Promise<SellerPaymentRow> {
   if (!isDatabaseConfigured()) {
     const row: AdminPaymentRow = {
@@ -165,6 +168,7 @@ async function createPendingPayment(input: {
     status: "pending",
     provider: "manual",
     description: input.description,
+    meta: input.meta ?? {},
   });
 
   return {

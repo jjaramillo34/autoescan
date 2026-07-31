@@ -1,6 +1,7 @@
 import {
   DEFAULT_AI_COST_ALERT_PERCENT,
   DEFAULT_GEMINI_COST_PER_REQUEST,
+  DEFAULT_GEMINI_MONTHLY_BUDGET_USD,
   PLANS,
   type BillingStatus,
   type PlanId,
@@ -219,6 +220,8 @@ export let demoModeration: AdminPartModeration[] = [
 export let platformSettingsDemo = {
   geminiCostPerRequest: DEFAULT_GEMINI_COST_PER_REQUEST,
   aiCostAlertPercent: DEFAULT_AI_COST_ALERT_PERCENT,
+  geminiMonthlyBudgetUsd: DEFAULT_GEMINI_MONTHLY_BUDGET_USD,
+  geminiBudgetHardStop: true,
   aiRateLimitPerIpHour: 30,
   aiRateLimitPerSessionDay: 40,
   billingProvider: "manual" as const,

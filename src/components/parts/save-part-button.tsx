@@ -3,26 +3,37 @@
 import { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 import { toast } from "sonner";
+import { useFavoritesUserId } from "@/components/favorites/favorites-user";
+import { toggleFavoriteAction } from "@/lib/actions/favorites";
 import {
   isPartSaved,
   toggleSavedPart,
+  writeSavedPartIds,
 } from "@/lib/saved-parts";
 import { cn } from "@/lib/utils";
 
 interface SavePartButtonProps {
   partId: string;
   partTitle?: string;
+  sellerId?: string;
+  brand?: string;
+  model?: string;
+  location?: string;
   className?: string;
-  /** Compact icon for cards */
   variant?: "icon" | "button";
 }
 
 export function SavePartButton({
   partId,
   partTitle,
+  sellerId,
+  brand,
+  model,
+  location,
   className,
   variant = "icon",
 }: SavePartButtonProps) {
+  const userId = useFavoritesUserId();
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -36,11 +47,69 @@ export function SavePartButton({
     };
   }, [partId]);
 
-  function onToggle(e: React.MouseEvent) {
+  async function onToggle(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
+
+    if (userId) {
+      const result = await toggleFavoriteAction(partId);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      writeSavedPartIds(result.ids);
+      setSaved(result.saved);
+      if (result.saved) {
+        void fetch("/api/analytics/favorite", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            partId,
+            sellerId,
+            query: partTitle,
+            brand,
+            model,
+            location,
+            saved: true,
+          }),
+          keepalive: true,
+        });
+      }
+      toast.success(
+        result.saved ? "Guardado en tu cuenta" : "Quitado de favoritos",
+        {
+          description: partTitle,
+          action: result.saved
+            ? {
+                label: "Ver",
+                onClick: () => {
+                  window.location.href = "/guardados";
+                },
+              }
+            : undefined,
+        },
+      );
+      return;
+    }
+
     const next = toggleSavedPart(partId);
     setSaved(next);
+    if (next) {
+      void fetch("/api/analytics/favorite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          partId,
+          sellerId,
+          query: partTitle,
+          brand,
+          model,
+          location,
+          saved: true,
+        }),
+        keepalive: true,
+      });
+    }
     toast.success(
       next ? "Guardado en favoritos" : "Quitado de favoritos",
       {
@@ -61,7 +130,7 @@ export function SavePartButton({
     return (
       <button
         type="button"
-        onClick={onToggle}
+        onClick={(e) => void onToggle(e)}
         className={cn(
           "inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border border-border/80 bg-background text-sm font-medium transition-colors hover:border-primary/40",
           saved && "border-primary/40 bg-primary/10 text-primary",
@@ -77,7 +146,7 @@ export function SavePartButton({
   return (
     <button
       type="button"
-      onClick={onToggle}
+      onClick={(e) => void onToggle(e)}
       aria-label={saved ? "Quitar de guardados" : "Guardar repuesto"}
       aria-pressed={saved}
       className={cn(

@@ -30,6 +30,27 @@ export function ImpulsosPanel({
 }: ImpulsosPanelProps) {
   const [pending, startTransition] = useTransition();
 
+  function goCheckout(
+    result: {
+      checkoutUrl?: string;
+      waUrl: string;
+      provider?: string;
+    },
+    label: string,
+  ) {
+    toast.success(label, {
+      description:
+        result.provider === "stripe"
+          ? "Te llevamos a Stripe Checkout."
+          : "Puedes pagar en línea (dev) o por WhatsApp.",
+    });
+    if (result.checkoutUrl) {
+      window.location.href = result.checkoutUrl;
+      return;
+    }
+    window.open(result.waUrl, "_blank", "noopener,noreferrer");
+  }
+
   function requestPlan(planId: PlanId) {
     startTransition(async () => {
       const result = await requestPlanAction(planId);
@@ -37,10 +58,7 @@ export function ImpulsosPanel({
         toast.error(result.error);
         return;
       }
-      toast.success("Solicitud registrada", {
-        description: "Te abrimos WhatsApp con AutoEscán para coordinar el pago.",
-      });
-      window.open(result.waUrl, "_blank", "noopener,noreferrer");
+      goCheckout(result, "Solicitud registrada");
     });
   }
 
@@ -51,10 +69,7 @@ export function ImpulsosPanel({
         toast.error(result.error);
         return;
       }
-      toast.success("Impulso solicitado", {
-        description: "Coordina el pago por WhatsApp. El admin lo activará.",
-      });
-      window.open(result.waUrl, "_blank", "noopener,noreferrer");
+      goCheckout(result, "Impulso solicitado");
     });
   }
 
@@ -63,8 +78,7 @@ export function ImpulsosPanel({
       <section className="space-y-3">
         <h2 className="font-heading text-xl tracking-wide">Planes anuales</h2>
         <p className="text-sm text-muted-foreground">
-          Cobro manual por ahora (transferencia / Payphone). Solicita y te
-          contactamos por WhatsApp.
+          Checkout en línea (Stripe si está configurado) o WhatsApp / transferencia.
         </p>
         <div className="grid gap-3 md:grid-cols-3">
           {(Object.values(PLANS) as (typeof PLANS)[PlanId][]).map((plan) => {
@@ -116,7 +130,7 @@ export function ImpulsosPanel({
                   ) : current ? (
                     "Plan activo"
                   ) : (
-                    "Solicitar plan"
+                    "Pagar / solicitar"
                   )}
                 </Button>
               </article>
@@ -166,7 +180,7 @@ export function ImpulsosPanel({
                   ) : (
                     <MessageCircle className="size-4" />
                   )}
-                  Solicitar por WhatsApp
+                  Pagar / solicitar
                 </Button>
               </article>
             );

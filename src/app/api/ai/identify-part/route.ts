@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { identifyPartFromImage } from "@/lib/gemini";
+import { assertGlobalGeminiBudget } from "@/lib/gemini-budget";
 import { checkAiRateLimit, logAiUsage, trackAnalyticsEvent } from "@/lib/tracking";
 
 export const runtime = "nodejs";
@@ -16,6 +17,11 @@ export async function POST(request: Request) {
     const rate = await checkAiRateLimit(ip, sessionId);
     if (!rate.allowed) {
       return NextResponse.json({ error: rate.error }, { status: 429 });
+    }
+
+    const budget = await assertGlobalGeminiBudget();
+    if (!budget.ok) {
+      return NextResponse.json({ error: budget.error }, { status: 503 });
     }
 
     const contentType = request.headers.get("content-type") || "";

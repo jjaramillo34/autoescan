@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, MapPin, ShieldCheck, Store } from "lucide-react";
+import { TrackPartView } from "@/components/analytics/track-part-view";
 import { PartGallery } from "@/components/parts/part-gallery";
 import { PartCard } from "@/components/parts/part-card";
 import { StockBadge } from "@/components/parts/stock-badge";
 import { BotonWhatsApp } from "@/components/parts/boton-whatsapp";
 import { SharePart } from "@/components/parts/share-part";
 import { SavePartButton } from "@/components/parts/save-part-button";
+import { ReportPartButton } from "@/components/parts/report-part-button";
 import { Button } from "@/components/ui/button";
 import {
   getPartById,
@@ -44,6 +46,15 @@ export default async function PartDetailPage({ params }: PartDetailProps) {
 
   return (
     <div className="mx-auto max-w-6xl space-y-10 px-4 py-6 pb-24 sm:py-10 md:pb-10">
+      <TrackPartView
+        partId={part._id}
+        sellerId={sellerId ? String(sellerId) : undefined}
+        title={part.title}
+        brand={part.brand}
+        model={part.model}
+        year={part.yearRange}
+        location={part.location}
+      />
       <div>
         <Button asChild variant="ghost" size="sm" className="-ml-2 gap-1.5">
           <Link href="/#catalogo">
@@ -165,10 +176,15 @@ export default async function PartDetailPage({ params }: PartDetailProps) {
               <SavePartButton
                 partId={part._id}
                 partTitle={part.title}
+                sellerId={sellerId ? String(sellerId) : undefined}
+                brand={part.brand}
+                model={part.model}
+                location={part.location}
                 variant="button"
               />
             </div>
             <SharePart part={part} />
+            <ReportPartButton partId={part._id} partTitle={part.title} />
             <p className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
               <ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-primary" />
               Local en Ambato · Contacto directo por WhatsApp · Sin

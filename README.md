@@ -22,9 +22,11 @@ Sin `MONGODB_URI` ni `GOOGLE_GEMINI_API_KEY` la app corre en **modo demostració
 | Rol | Correo | Contraseña |
 |---|---|---|
 | Vendedor | `vendedor@autoescan.ec` | `Vendedor123!` |
+| Vendedor 2 | `ficoa@autoescan.ec` | `Vendedor123!` |
 | Super-admin | `admin@autoescan.ec` | `Admin123!` |
+| Comprador | `comprador@autoescan.ec` | `Comprador123!` |
 
-Panel admin: [/admin](http://localhost:3000/admin) — MRR, vendedores, billing, IA, moderación, analytics e impulsos.
+Panel admin: [/admin](http://localhost:3000/admin) — MRR, vendedores, billing, IA, precios, moderación, analytics e impulsos.
 
 ## Variables de entorno
 
@@ -39,6 +41,11 @@ Panel admin: [/admin](http://localhost:3000/admin) — MRR, vendedores, billing,
 | `IMAGEKIT_PUBLIC_KEY` | ImageKit public key |
 | `IMAGEKIT_PRIVATE_KEY` | ImageKit private key (solo servidor) |
 | `IMAGEKIT_URL_ENDPOINT` | Ej. `https://ik.imagekit.io/tu_id` — fotos en `/autoescan` |
+| `AUTOESCAN_SUPPORT_WHATSAPP` | WhatsApp de soporte (planes / impulsos) |
+| `CRON_SECRET` | Bearer para `/api/cron/stock-alerts` |
+| `STRIPE_SECRET_KEY` | Checkout Stripe (opcional; sin clave = manual + simulación) |
+| `STRIPE_WEBHOOK_SECRET` | Webhook de Stripe |
+| `BILLING_ALLOW_SIMULATE` | `1` permite simular pago en dev |
 
 ## Seed (MongoDB)
 
@@ -53,17 +60,22 @@ npm run seed
 | `/` | Catálogo + filtros, orden y paginación |
 | `/repuesto/[id]` | Detalle del producto (galería, vendedor, relacionados) |
 | `/tienda/[id]` | Página pública de la tienda |
-| `/guardados` | Favoritos guardados en el dispositivo |
+| `/guardados` | Favoritos (local + sync si hay cuenta comprador) |
 | `/tiendas` | Directorio de locales en Ambato |
-| `/buscar-por-imagen` | Búsqueda visual con Gemini |
+| `/buscar-por-imagen` | Búsqueda visual con Gemini (presupuesto global) |
 | `/api/ai/identify-part` | Route Handler multimodal |
-| `/iniciar-sesion` | Login seguro de vendedores |
+| `/iniciar-sesion` | Login (vendedor / admin / comprador) |
+| `/registro` | Alta de cuenta comprador |
 | `/registro-vendedor` | Alta de cuenta vendedor |
-| `/vendedor` | Panel vendedor (WA, stock, IA, onboarding) |
+| `/vendedor` | Panel (WA, stock, créditos IA, insights) |
 | `/vendedor/inventario` | Inventario CRUD (protegido) |
 | `/vendedor/nuevo-repuesto` | Carga manual o CSV (protegido) |
 | `/vendedor/perfil` | Logo, WhatsApp, especialización |
-| `/vendedor/impulsos` | Planes e impulsos (solicitud manual) |
+| `/vendedor/impulsos` | Planes e impulsos (Stripe o manual) |
+| `/vendedor/respuestas` | Plantillas de respuesta WhatsApp |
+| `/vendedor/checkout/[paymentId]` | Checkout / simulación de pago |
+| `/admin/ia` | Control IA, pricing, presupuesto Gemini |
+| `/admin/precios` | Comparador de precios entre tiendas |
 | `/privacidad` | Política de privacidad |
 | `/terminos` | Términos de uso |
 

@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { OnboardingChecklist } from "@/components/seller/onboarding-checklist";
 import { SellerDashboard } from "@/components/seller/seller-dashboard";
+import { StockAlertBanner } from "@/components/seller/stock-alert-banner";
 import { contactPhone } from "@/lib/phone";
 import { getSellerDashboard } from "@/lib/seller-dashboard";
 import { getOnboardingStatus } from "@/lib/seller-onboarding";
 import { getSellerProfile } from "@/lib/seller-profile";
 import { requireSellerSession } from "@/lib/session";
+import { getSellerStockAlertBanner } from "@/lib/stock-alerts";
 
 export const dynamic = "force-dynamic";
 
@@ -28,9 +30,10 @@ export default async function VendedorPanelPage({
   }
 
   const { bienvenida } = await searchParams;
-  const [data, profile] = await Promise.all([
+  const [data, profile, stockAlert] = await Promise.all([
     getSellerDashboard(session.user.id),
     getSellerProfile(session.user.id),
+    getSellerStockAlertBanner(session.user.id),
   ]);
 
   const onboarding = profile
@@ -45,7 +48,7 @@ export default async function VendedorPanelPage({
         </p>
         <h1 className="font-heading text-3xl tracking-wide">Panel</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Consultas WhatsApp, stock bajo, créditos IA y destacados.
+          Vistas, conversión a WhatsApp, stock, créditos IA y destacados.
         </p>
       </div>
 
@@ -54,6 +57,10 @@ export default async function VendedorPanelPage({
           status={onboarding}
           welcome={bienvenida === "1"}
         />
+      )}
+
+      {stockAlert?.pending && stockAlert.digest && (
+        <StockAlertBanner digest={stockAlert.digest} />
       )}
 
       <SellerDashboard

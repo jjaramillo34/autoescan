@@ -7,6 +7,7 @@ import {
   Bot,
   LayoutDashboard,
   Megaphone,
+  Scale,
   ShieldCheck,
   Store,
   BarChart3,
@@ -19,6 +20,7 @@ const links = [
   { href: "/admin/billing", label: "Billing", icon: BadgeDollarSign },
   { href: "/admin/ia", label: "Control IA", icon: Bot },
   { href: "/admin/moderacion", label: "Moderación", icon: ShieldCheck },
+  { href: "/admin/precios", label: "Precios", icon: Scale },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/admin/impulsos", label: "Impulsos", icon: Megaphone },
 ];

@@ -2,6 +2,7 @@ import mongoose, { Schema, type InferSchemaType, type Model } from "mongoose";
 import {
   DEFAULT_AI_COST_ALERT_PERCENT,
   DEFAULT_GEMINI_COST_PER_REQUEST,
+  DEFAULT_GEMINI_MONTHLY_BUDGET_USD,
 } from "@/lib/plans";
 
 const platformSettingsSchema = new Schema(
@@ -15,6 +16,13 @@ const platformSettingsSchema = new Schema(
       type: Number,
       default: DEFAULT_AI_COST_ALERT_PERCENT,
     },
+    /** Tope USD de gasto Gemini por mes (plataforma). */
+    geminiMonthlyBudgetUsd: {
+      type: Number,
+      default: DEFAULT_GEMINI_MONTHLY_BUDGET_USD,
+    },
+    /** Si true, bloquea búsquedas por foto al llegar al presupuesto. */
+    geminiBudgetHardStop: { type: Boolean, default: true },
     aiRateLimitPerIpHour: { type: Number, default: 30 },
     aiRateLimitPerSessionDay: { type: Number, default: 40 },
     billingProvider: {

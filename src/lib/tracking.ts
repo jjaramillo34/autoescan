@@ -1,7 +1,10 @@
 import { createHash } from "crypto";
 import { connectDB, isDatabaseConfigured } from "@/lib/db";
 import { AiUsage } from "@/lib/models/AiUsage";
-import { AnalyticsEvent } from "@/lib/models/AnalyticsEvent";
+import {
+  AnalyticsEvent,
+  type AnalyticsEventType,
+} from "@/lib/models/AnalyticsEvent";
 import { PlatformSettings } from "@/lib/models/PlatformSettings";
 import { DEFAULT_GEMINI_COST_PER_REQUEST } from "@/lib/plans";
 import {
@@ -105,18 +108,29 @@ export async function logAiUsage(input: {
 }
 
 export async function trackAnalyticsEvent(input: {
-  type: "search" | "ai_search" | "whatsapp_click";
+  type: AnalyticsEventType;
   query?: string;
   brand?: string;
   model?: string;
   year?: string;
+  location?: string;
   partId?: string;
   sellerId?: string;
 }) {
   if (!isDatabaseConfigured()) {
+    const demo = await import("@/lib/demo-analytics");
     if (input.type === "whatsapp_click") {
-      const { recordDemoWhatsappClick } = await import("@/lib/demo-analytics");
-      recordDemoWhatsappClick({
+      demo.recordDemoWhatsappClick({
+        sellerId: input.sellerId,
+        partId: input.partId,
+      });
+    } else if (input.type === "part_view") {
+      demo.recordDemoPartView({
+        sellerId: input.sellerId,
+        partId: input.partId,
+      });
+    } else if (input.type === "favorite") {
+      demo.recordDemoFavorite({
         sellerId: input.sellerId,
         partId: input.partId,
       });
@@ -131,6 +145,7 @@ export async function trackAnalyticsEvent(input: {
     brand: input.brand ?? "",
     model: input.model ?? "",
     year: input.year ?? "",
+    location: input.location ?? "",
     partId: input.partId || undefined,
     sellerId: input.sellerId || undefined,
   });

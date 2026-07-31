@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
-import { getAdminPayments, getAiControlData } from "@/lib/admin/metrics";
+import {
+  getAdminPayments,
+  getAiControlData,
+  getBillingCohorts,
+} from "@/lib/admin/metrics";
 import { savePlatformSettingsAction } from "@/lib/admin/actions";
 import { PLANS, UPSELLS, planMonthlyEquivalent } from "@/lib/plans";
+import { StatCard } from "@/components/admin/stat-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,9 +24,10 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Billing" };
 
 export default async function AdminBillingPage() {
-  const [payments, ai] = await Promise.all([
+  const [payments, ai, cohorts] = await Promise.all([
     getAdminPayments(),
     getAiControlData(),
+    getBillingCohorts(),
   ]);
 
   return (
@@ -33,6 +39,46 @@ export default async function AdminBillingPage() {
           Paymentez. Sin pago → tienda pausada.
         </p>
       </div>
+
+      <section className="space-y-3">
+        <h3 className="font-heading text-lg">Cohortes de facturación</h3>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            label="Trial"
+            value={cohorts.trial}
+            hint={`${cohorts.trialsExpiring7d} vencen en 7 días`}
+          />
+          <StatCard
+            label="Pagando (active)"
+            value={cohorts.activePaid}
+            hint={`Conversión trial→pago ${cohorts.trialToPaidPct}%`}
+            tone="success"
+          />
+          <StatCard
+            label="Churn / riesgo"
+            value={`${cohorts.churnPct}%`}
+            hint={`${cohorts.pastDue} past due · ${cohorts.canceled} cancelados`}
+            tone={cohorts.churnPct >= 20 ? "warning" : "default"}
+          />
+          <StatCard
+            label="Pagos pendientes"
+            value={cohorts.pendingPayments}
+            hint={`$${cohorts.revenuePendingUsd.toFixed(0)} · ${cohorts.paidPayments30d} cobrados (30d)`}
+            tone={cohorts.pendingPayments > 0 ? "warning" : "default"}
+          />
+        </div>
+        <ul className="flex flex-wrap gap-2 text-sm">
+          {cohorts.byPlan.map((p) => (
+            <li
+              key={p.planId}
+              className="rounded-md border border-border/50 bg-card/50 px-3 py-1.5"
+            >
+              <span className="text-muted-foreground">{p.name}</span>{" "}
+              <span className="font-medium text-primary">{p.count}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <section className="grid gap-3 sm:grid-cols-3">
         {Object.values(PLANS).map((plan) => (

@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock, MapPin, MessageCircle } from "lucide-react";
+import { TrackStoreView } from "@/components/analytics/track-store-view";
 import { PartCard } from "@/components/parts/part-card";
 import { EmptyParts } from "@/components/parts/empty-parts";
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,11 @@ export default async function StorePage({
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-6 pb-24 sm:py-10 md:pb-10">
+      <TrackStoreView
+        sellerId={seller._id}
+        storeName={storeName}
+        location={seller.storeSector || seller.city}
+      />
       <Button asChild variant="ghost" size="sm" className="-ml-2 gap-1.5">
         <Link href="/tiendas">
           <ArrowLeft className="size-4" />

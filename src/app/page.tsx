@@ -16,6 +16,7 @@ import { SponsoredBanner } from "@/components/home/sponsored-banner";
 import { getParts, getPublicSeller } from "@/lib/parts-service";
 import { getHomeBanner } from "@/lib/home-banner";
 import { isDatabaseConfigured } from "@/lib/db";
+import { trackAnalyticsEvent } from "@/lib/tracking";
 import type { PartSort } from "@/lib/types";
 
 interface HomeProps {
@@ -58,6 +59,7 @@ async function PartsResults({
 
   const minPrice = Number(searchParams.minPrice);
   const maxPrice = Number(searchParams.maxPrice);
+  const page = Math.max(1, Number(searchParams.page) || 1);
 
   const catalog = await getParts({
     brand: searchParams.brand,
@@ -70,9 +72,24 @@ async function PartsResults({
     q: searchParams.q,
     keywords,
     seller: searchParams.seller,
-    page: Math.max(1, Number(searchParams.page) || 1),
+    page,
     sort: parseSort(searchParams.sort),
   });
+
+  // Solo página 1 para no inflar conteos al paginar.
+  const queryText = (searchParams.q || keywords?.join(" ") || "").trim();
+  if (page === 1 && (queryText || searchParams.brand || searchParams.model)) {
+    void trackAnalyticsEvent({
+      type: "search",
+      query:
+        queryText ||
+        [searchParams.brand, searchParams.model].filter(Boolean).join(" "),
+      brand: searchParams.brand,
+      model: searchParams.model,
+      year: searchParams.year,
+      location: searchParams.location,
+    });
+  }
 
   if (catalog.total === 0) {
     return <EmptyParts />;
