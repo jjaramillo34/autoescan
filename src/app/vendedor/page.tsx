@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { OnboardingChecklist } from "@/components/seller/onboarding-checklist";
 import { SellerDashboard } from "@/components/seller/seller-dashboard";
 import { StockAlertBanner } from "@/components/seller/stock-alert-banner";
+import { StoreStatusBanner } from "@/components/seller/store-status-banner";
 import { contactPhone } from "@/lib/phone";
 import { getSellerParts } from "@/lib/parts-service";
 import { getSellerDashboard } from "@/lib/seller-dashboard";
@@ -53,6 +54,8 @@ export default async function VendedorPanelPage({
           Vistas, conversión a WhatsApp, stock, créditos IA y destacados.
         </p>
       </div>
+
+      {profile && <StoreStatusBanner storeStatus={profile.storeStatus} />}
 
       {onboarding && (
         <OnboardingChecklist

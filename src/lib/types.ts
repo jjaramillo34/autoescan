@@ -14,6 +14,8 @@ export interface SellerInfo {
   businessHours?: string;
   city?: string;
   province?: string;
+  /** Estado de la tienda en el marketplace. */
+  storeStatus?: "pending" | "active" | "paused" | "rejected";
 }
 
 export interface PartDTO {

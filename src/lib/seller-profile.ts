@@ -43,6 +43,7 @@ export function serializeSeller(doc: Record<string, unknown>): SellerInfo {
     businessHours: doc.businessHours ? String(doc.businessHours) : "",
     city: doc.city ? String(doc.city) : undefined,
     province: doc.province ? String(doc.province) : undefined,
+    storeStatus: (doc.storeStatus as SellerInfo["storeStatus"]) || "pending",
   };
 }
 
@@ -60,6 +61,7 @@ function serializeDemoUser(user: DemoAuthUser): SellerInfo {
     businessHours: user.businessHours ?? "",
     city: user.city,
     province: user.province,
+    storeStatus: user.storeStatus ?? "active",
   };
 }
 

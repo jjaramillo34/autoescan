@@ -17,6 +17,7 @@ export interface DemoAuthUser {
   storeSpecializations?: string[];
   storeSector?: string;
   businessHours?: string;
+  storeStatus?: "pending" | "active" | "paused" | "rejected";
 }
 
 const DEMO_PASSWORD_HASH = bcrypt.hashSync("Vendedor123!", 10);
