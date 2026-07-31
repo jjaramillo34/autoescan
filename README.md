@@ -59,10 +59,36 @@ npm run seed
 | `/api/ai/identify-part` | Route Handler multimodal |
 | `/iniciar-sesion` | Login seguro de vendedores |
 | `/registro-vendedor` | Alta de cuenta vendedor |
-| `/vendedor/inventario` | Dashboard stock/precio (protegido) |
+| `/vendedor` | Panel vendedor (WA, stock, IA, onboarding) |
+| `/vendedor/inventario` | Inventario CRUD (protegido) |
 | `/vendedor/nuevo-repuesto` | Carga manual o CSV (protegido) |
+| `/vendedor/perfil` | Logo, WhatsApp, especialización |
+| `/vendedor/impulsos` | Planes e impulsos (solicitud manual) |
 | `/privacidad` | Política de privacidad |
 | `/terminos` | Términos de uso |
+
+## Deploy rápido (Vercel)
+
+```bash
+# 1) Login y vincular el repo
+npx vercel login
+npx vercel link
+
+# 2) Subir env (Production + Preview)
+npx vercel env add AUTH_SECRET
+npx vercel env add MONGODB_URI
+npx vercel env add GOOGLE_GEMINI_API_KEY
+npx vercel env add IMAGEKIT_PUBLIC_KEY
+npx vercel env add IMAGEKIT_PRIVATE_KEY
+npx vercel env add IMAGEKIT_URL_ENDPOINT
+npx vercel env add FAST_API_KEY
+# opcional: GEMINI_MODEL, IMAGE_SEARCH_API_URL, AUTH_URL, AUTOESCAN_SUPPORT_WHATSAPP
+
+# 3) Deploy
+npx vercel --prod
+```
+
+Luego define `AUTH_URL` con la URL de producción y vuelve a desplegar si hace falta.
 
 ## Checklist de producción (piloto Ambato)
 
@@ -73,7 +99,8 @@ npm run seed
 - [ ] `GOOGLE_GEMINI_API_KEY` + `GEMINI_MODEL`
 - [ ] `FAST_API_KEY` (+ `IMAGE_SEARCH_API_URL` si aplica)
 - [ ] `IMAGEKIT_PUBLIC_KEY`, `IMAGEKIT_PRIVATE_KEY`, `IMAGEKIT_URL_ENDPOINT`
-- [ ] `AUTH_URL` / URL canónica del dominio (si Auth.js lo exige en prod)
+- [ ] `AUTH_URL` (URL canónica de producción)
+- [ ] `AUTOESCAN_SUPPORT_WHATSAPP` (solicitudes de plan/impulsos)
 
 ### 2. Datos y cuentas
 
