@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/legal/legal-page";
+import { getPrivacyEmail } from "@/lib/site-contact";
 
 export const metadata: Metadata = {
   title: "Política de privacidad",
@@ -8,6 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default function PrivacidadPage() {
+  const privacyEmail = getPrivacyEmail();
   return (
     <LegalPage title="Política de privacidad" updated="31 de julio de 2026">
       <section className="space-y-2">
@@ -95,9 +97,9 @@ export default function PrivacidadPage() {
           Para consultas de privacidad del piloto:{" "}
           <a
             className="text-primary hover:underline"
-            href="mailto:privacidad@autoescan.ec"
+            href={`mailto:${privacyEmail}`}
           >
-            privacidad@autoescan.ec
+            {privacyEmail}
           </a>
           .
         </p>

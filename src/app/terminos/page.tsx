@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalPage } from "@/components/legal/legal-page";
+import { getSupportEmail } from "@/lib/site-contact";
 
 export const metadata: Metadata = {
   title: "Términos de uso",
@@ -9,6 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default function TerminosPage() {
+  const supportEmail = getSupportEmail();
   return (
     <LegalPage title="Términos de uso" updated="31 de julio de 2026">
       <section className="space-y-2">
@@ -103,9 +105,9 @@ export default function TerminosPage() {
           Soporte del piloto:{" "}
           <a
             className="text-primary hover:underline"
-            href="mailto:hola@autoescan.ec"
+            href={`mailto:${supportEmail}`}
           >
-            hola@autoescan.ec
+            {supportEmail}
           </a>
           .
         </p>

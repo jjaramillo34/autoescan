@@ -45,7 +45,7 @@ export function ImpulsosPanel({
           : "Puedes pagar en línea (dev) o por WhatsApp.",
     });
     if (result.checkoutUrl) {
-      window.location.href = result.checkoutUrl;
+      window.location.assign(result.checkoutUrl);
       return;
     }
     window.open(result.waUrl, "_blank", "noopener,noreferrer");

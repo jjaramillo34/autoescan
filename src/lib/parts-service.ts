@@ -368,11 +368,11 @@ export async function getParts(
       .sort(mongoSort)
       .lean();
 
-    // Ocultar catálogo de tiendas pausadas/baneadas; priorizar aiPriority.
+    // Solo tiendas activas (pending/paused no aparecen en el catálogo público).
     const visible = parts.filter((p) => {
       const seller = p.seller as { storeStatus?: string } | null;
       if (!seller?.storeStatus) return true;
-      return seller.storeStatus === "active" || seller.storeStatus === "pending";
+      return seller.storeStatus === "active";
     });
 
     if (sort === "relevancia") {
@@ -419,11 +419,7 @@ export async function getPartById(id: string): Promise<PartDTO | null> {
     }
 
     const seller = part.seller as { storeStatus?: string } | null;
-    if (
-      seller?.storeStatus &&
-      seller.storeStatus !== "active" &&
-      seller.storeStatus !== "pending"
-    ) {
+    if (seller?.storeStatus && seller.storeStatus !== "active") {
       return null;
     }
 
@@ -536,11 +532,7 @@ export async function getPublicSeller(
     if (!seller || (seller.role !== "vendedor" && seller.role !== "admin")) {
       return null;
     }
-    if (
-      seller.storeStatus &&
-      seller.storeStatus !== "active" &&
-      seller.storeStatus !== "pending"
-    ) {
+    if (seller.storeStatus !== "active") {
       return null;
     }
     return serializeSeller(seller as Record<string, unknown>);

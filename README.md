@@ -133,9 +133,11 @@ Luego define `AUTH_URL` con la URL de producción y vuelve a desplegar si hace f
 - [ ] `FAST_API_KEY` (+ `IMAGE_SEARCH_API_URL` si aplica)
 - [ ] `IMAGEKIT_PUBLIC_KEY`, `IMAGEKIT_PRIVATE_KEY`, `IMAGEKIT_URL_ENDPOINT`
 - [ ] `AUTH_URL` (URL canónica de producción)
-- [ ] `AUTOESCAN_SUPPORT_WHATSAPP` (**obligatorio** en prod — no uses el fallback demo)
+- [ ] `AUTOESCAN_SUPPORT_WHATSAPP` (**obligatorio** en prod — sin esto no hay WA de soporte)
+- [ ] `AUTOESCAN_SUPPORT_EMAIL` / `AUTOESCAN_PRIVACY_EMAIL` (páginas legales)
 - [ ] `CRON_SECRET` (alertas de stock)
 - [ ] Stripe opcional: `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET`
+- [ ] Repo remoto en GitHub + `git push -u origin main` (hoy puede estar solo local)
 
 ### 2. Datos y cuentas
 

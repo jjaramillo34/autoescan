@@ -34,7 +34,6 @@ export function SavedPartsClient() {
       window.removeEventListener("autoescan:saved-parts", onChange);
       window.removeEventListener("storage", onChange);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (parts === null || pending) {

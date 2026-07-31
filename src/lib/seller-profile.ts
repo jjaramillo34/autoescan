@@ -65,9 +65,13 @@ function serializeDemoUser(user: DemoAuthUser): SellerInfo {
   };
 }
 
+export type SellerProfileExtras = SellerInfo & {
+  sellerNotice?: string;
+};
+
 export async function getSellerProfile(
   sellerId: string,
-): Promise<SellerInfo | null> {
+): Promise<SellerProfileExtras | null> {
   if (!sellerId) return null;
 
   if (!isDatabaseConfigured()) {
@@ -78,7 +82,10 @@ export async function getSellerProfile(
   await connectDB();
   const seller = await User.findById(sellerId).lean();
   if (!seller) return null;
-  return serializeSeller(seller as Record<string, unknown>);
+  return {
+    ...serializeSeller(seller as Record<string, unknown>),
+    sellerNotice: seller.sellerNotice ? String(seller.sellerNotice) : "",
+  };
 }
 
 export async function updateSellerProfile(

@@ -80,6 +80,11 @@ const userSchema = new Schema(
     lastStockAlertAt: { type: Date },
     /** Digest pendiente de mostrar en el panel del vendedor. */
     stockAlertPending: { type: Boolean, default: false },
+    /**
+     * Aviso puntual en el panel tras cambio de estado por admin.
+     * Ej. "approved" | "paused" | "rejected" | "".
+     */
+    sellerNotice: { type: String, default: "" },
   },
   { timestamps: true },
 );

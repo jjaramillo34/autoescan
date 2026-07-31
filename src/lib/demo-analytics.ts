@@ -148,10 +148,11 @@ function dayKey(d: Date) {
 /** Tendencia + horarios pico demo para el panel del vendedor. */
 let demoFavorites = 24;
 
-export function recordDemoFavorite(_input: {
+export function recordDemoFavorite(_input?: {
   sellerId?: string;
   partId?: string;
 }) {
+  void _input;
   demoFavorites += 1;
 }
 

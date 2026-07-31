@@ -30,10 +30,10 @@ export function StoreStatusBanner({
     );
   }
 
-  if (storeStatus === "rejected") {
+  if (storeStatus === "banned") {
     return (
       <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-800 dark:text-red-200">
-        Tu tienda fue <strong>rechazada</strong>. Contacta a AutoEscán para
+        Tu tienda está <strong>suspendida</strong>. Contacta a AutoEscán para
         corregir datos y volver a solicitar aprobación.
       </div>
     );

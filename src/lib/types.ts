@@ -15,7 +15,7 @@ export interface SellerInfo {
   city?: string;
   province?: string;
   /** Estado de la tienda en el marketplace. */
-  storeStatus?: "pending" | "active" | "paused" | "rejected";
+  storeStatus?: "pending" | "active" | "paused" | "banned";
 }
 
 export interface PartDTO {

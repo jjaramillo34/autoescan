@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { OnboardingChecklist } from "@/components/seller/onboarding-checklist";
 import { SellerDashboard } from "@/components/seller/seller-dashboard";
 import { StockAlertBanner } from "@/components/seller/stock-alert-banner";
+import { SellerNoticeBanner } from "@/components/seller/seller-notice-banner";
 import { StoreStatusBanner } from "@/components/seller/store-status-banner";
 import { contactPhone } from "@/lib/phone";
 import { getSellerParts } from "@/lib/parts-service";
@@ -56,6 +57,9 @@ export default async function VendedorPanelPage({
       </div>
 
       {profile && <StoreStatusBanner storeStatus={profile.storeStatus} />}
+      {profile?.sellerNotice && (
+        <SellerNoticeBanner notice={profile.sellerNotice} />
+      )}
 
       {onboarding && (
         <OnboardingChecklist

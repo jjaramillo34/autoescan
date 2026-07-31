@@ -1,14 +1,25 @@
 "use server";
 
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { connectDB, isDatabaseConfigured } from "@/lib/db";
 import { Part } from "@/lib/models/Part";
 import { demoModeration } from "@/lib/admin/demo-admin";
+import { checkReportRateLimit } from "@/lib/report-rate-limit";
 import {
   REPORT_REASON_LABELS,
   REPORT_REASONS,
   type ReportReason,
 } from "@/lib/report-reasons";
+
+async function reportClientKey() {
+  const h = await headers();
+  const ip =
+    h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    h.get("x-real-ip") ||
+    "unknown";
+  return `report:${ip}`;
+}
 
 export async function reportPartAction(input: {
   partId: string;
@@ -20,6 +31,11 @@ export async function reportPartAction(input: {
   if (!partId) return { ok: false, error: "Falta el producto." };
   if (!REPORT_REASONS.includes(reason)) {
     return { ok: false, error: "Selecciona un motivo válido." };
+  }
+
+  const rate = checkReportRateLimit(await reportClientKey());
+  if (!rate.allowed) {
+    return { ok: false, error: rate.error || "Límite de reportes alcanzado." };
   }
 
   const detail = (input.detail ?? "").trim().slice(0, 280);

@@ -8,6 +8,7 @@ import {
   type PlanId,
 } from "@/lib/plans";
 import { getSellerProfile } from "@/lib/seller-profile";
+import { getConfiguredSupportWhatsApp } from "@/lib/site-contact";
 
 export type PaymentType =
   | "subscription"
@@ -183,15 +184,18 @@ async function createPendingPayment(input: {
   };
 }
 
+/** WhatsApp de soporte (vacío en prod si falta env). */
 export function getSupportWhatsAppPhone(): string {
-  const configured = process.env.AUTOESCAN_SUPPORT_WHATSAPP?.trim();
+  const configured = getConfiguredSupportWhatsApp();
   if (!configured) {
-    if (process.env.NODE_ENV === "production") {
-      console.warn(
-        "[AutoEscán] AUTOESCAN_SUPPORT_WHATSAPP no está definido. Usa un número real antes del piloto.",
-      );
+    console.warn(
+      "[AutoEscán] AUTOESCAN_SUPPORT_WHATSAPP no está definido. Configúralo antes del piloto.",
+    );
+    // Solo en desarrollo local para no bloquear demos.
+    if (process.env.NODE_ENV !== "production") {
+      return "+593999999999";
     }
-    return "+593999999999";
+    return "";
   }
   return configured;
 }
@@ -202,6 +206,9 @@ function buildBillingWhatsApp(input: {
   amountUsd: number;
 }) {
   const phone = getSupportWhatsAppPhone();
+  if (!phone) {
+    return "/vendedor/impulsos?soporte=1";
+  }
   const message = `Hola AutoEscán, soy ${input.storeName}. Quiero contratar: ${input.description} por $${input.amountUsd.toFixed(2)}. ¿Me indican cómo pagar?`;
   const digits = phone.replace(/\D/g, "");
   return `https://wa.me/${digits.startsWith("593") ? digits : `593${digits}`}?text=${encodeURIComponent(message)}`;

@@ -14,7 +14,7 @@ export interface PublicStore extends SellerInfo {
 export async function getPublicStores(): Promise<PublicStore[]> {
   if (!isDatabaseConfigured()) {
     return demoSellers
-      .filter((s) => s.storeStatus === "active" || s.storeStatus === "pending")
+      .filter((s) => s.storeStatus === "active")
       .map((s) => {
         const demo = findDemoUserById(s.id);
         const productCount = demoParts.filter((p) => {
@@ -57,7 +57,7 @@ export async function getPublicStores(): Promise<PublicStore[]> {
     await connectDB();
     const sellers = await User.find({
       role: { $in: ["vendedor", "admin"] },
-      storeStatus: { $in: ["active", "pending"] },
+      storeStatus: "active",
     })
       .select(
         "name phone whatsappPhone storeName storeLogo storeDescription storeSpecializations storeSector businessHours city province",

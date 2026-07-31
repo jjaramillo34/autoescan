@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { connectDB, isDatabaseConfigured } from "@/lib/db";
 import { User } from "@/lib/models/User";
 import { Part } from "@/lib/models/Part";
-import { Payment } from "@/lib/models/Payment";
 import { PlatformSettings } from "@/lib/models/PlatformSettings";
 import { requireAdminSession } from "@/lib/session";
 import { PLANS, type BillingStatus, type PlanId, type StoreStatus } from "@/lib/plans";
@@ -14,6 +13,13 @@ async function guard() {
   const session = await requireAdminSession();
   if (!session) throw new Error("No autorizado");
   return session;
+}
+
+function noticeForStatus(status: StoreStatus): string {
+  if (status === "active") return "approved";
+  if (status === "paused") return "paused";
+  if (status === "banned") return "rejected";
+  return "";
 }
 
 export async function updateSellerAdminAction(formData: FormData) {
@@ -28,6 +34,7 @@ export async function updateSellerAdminAction(formData: FormData) {
   if (!id) return { ok: false as const, error: "Falta ID" };
 
   const plan = PLANS[planId] ?? PLANS.basico;
+  const sellerNotice = noticeForStatus(storeStatus);
 
   if (!isDatabaseConfigured()) {
     updateDemoSeller(id, {
@@ -40,6 +47,7 @@ export async function updateSellerAdminAction(formData: FormData) {
     });
     revalidatePath("/admin");
     revalidatePath("/admin/vendedores");
+    revalidatePath("/vendedor");
     return { ok: true as const };
   }
 
@@ -51,12 +59,15 @@ export async function updateSellerAdminAction(formData: FormData) {
     productLimit: plan.productLimit,
     aiCreditsIncluded: plan.aiCreditsMonthly,
     aiPriority: plan.aiPriority,
+    ...(sellerNotice ? { sellerNotice } : {}),
   });
 
   revalidatePath("/admin");
   revalidatePath("/admin/vendedores");
+  revalidatePath("/vendedor");
   return { ok: true as const };
 }
+
 
 export async function moderatePartAction(formData: FormData): Promise<void> {
   await guard();
