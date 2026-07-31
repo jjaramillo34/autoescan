@@ -1,36 +1,125 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AutoEscán
 
-## Getting Started
+Marketplace de repuestos automotrices en Ecuador — piloto en **Ambato, Tungurahua**.
 
-First, run the development server:
+Stack: Next.js (App Router) · TypeScript · Tailwind CSS · shadcn/ui · MongoDB/Mongoose · Google Gemini · Framer Motion · Sonner.
+
+## Inicio rápido
 
 ```bash
+npm install
+cp .env.example .env.local   # si aún no existe
+# Genera AUTH_SECRET: openssl rand -base64 32
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Sin `MONGODB_URI` ni `GOOGLE_GEMINI_API_KEY` la app corre en **modo demostración** (inventario en memoria + identificación IA simulada).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Accesos demo
 
-## Learn More
+| Rol | Correo | Contraseña |
+|---|---|---|
+| Vendedor | `vendedor@autoescan.ec` | `Vendedor123!` |
+| Super-admin | `admin@autoescan.ec` | `Admin123!` |
 
-To learn more about Next.js, take a look at the following resources:
+Panel admin: [/admin](http://localhost:3000/admin) — MRR, vendedores, billing, IA, moderación, analytics e impulsos.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Variables de entorno
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Variable | Descripción |
+|---|---|
+| `AUTH_SECRET` | Secreto de sesión Auth.js (obligatorio) |
+| `MONGODB_URI` | URI de MongoDB |
+| `GOOGLE_GEMINI_API_KEY` | API key de Google AI Studio |
+| `GEMINI_MODEL` | Modelo multimodal (default `gemini-2.5-flash`) |
+| `FAST_API_KEY` | API key para búsqueda de fotos de productos (Railway) |
+| `IMAGE_SEARCH_API_URL` | Opcional: override del endpoint de búsqueda |
+| `IMAGEKIT_PUBLIC_KEY` | ImageKit public key |
+| `IMAGEKIT_PRIVATE_KEY` | ImageKit private key (solo servidor) |
+| `IMAGEKIT_URL_ENDPOINT` | Ej. `https://ik.imagekit.io/tu_id` — fotos en `/autoescan` |
 
-## Deploy on Vercel
+## Seed (MongoDB)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run seed
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Rutas principales
+
+| Ruta | Módulo |
+|---|---|
+| `/` | Catálogo + filtros, orden y paginación |
+| `/repuesto/[id]` | Detalle del producto (galería, vendedor, relacionados) |
+| `/tienda/[id]` | Página pública de la tienda |
+| `/guardados` | Favoritos guardados en el dispositivo |
+| `/tiendas` | Directorio de locales en Ambato |
+| `/buscar-por-imagen` | Búsqueda visual con Gemini |
+| `/api/ai/identify-part` | Route Handler multimodal |
+| `/iniciar-sesion` | Login seguro de vendedores |
+| `/registro-vendedor` | Alta de cuenta vendedor |
+| `/vendedor/inventario` | Dashboard stock/precio (protegido) |
+| `/vendedor/nuevo-repuesto` | Carga manual o CSV (protegido) |
+| `/privacidad` | Política de privacidad |
+| `/terminos` | Términos de uso |
+
+## Checklist de producción (piloto Ambato)
+
+### 1. Variables en el hosting (Vercel u otro)
+
+- [ ] `AUTH_SECRET` (único y fuerte: `openssl rand -base64 32`)
+- [ ] `MONGODB_URI` (Atlas o instancia gestionada)
+- [ ] `GOOGLE_GEMINI_API_KEY` + `GEMINI_MODEL`
+- [ ] `FAST_API_KEY` (+ `IMAGE_SEARCH_API_URL` si aplica)
+- [ ] `IMAGEKIT_PUBLIC_KEY`, `IMAGEKIT_PRIVATE_KEY`, `IMAGEKIT_URL_ENDPOINT`
+- [ ] `AUTH_URL` / URL canónica del dominio (si Auth.js lo exige en prod)
+
+### 2. Datos y cuentas
+
+- [ ] `npm run seed` (o alta real del primer vendedor)
+- [ ] Cambiar o desactivar contraseñas demo en producción
+- [ ] Aprobar al menos 1–2 tiendas activas en `/admin/vendedores`
+- [ ] Publicar un banner home de prueba en Impulsos (opcional)
+
+### 3. Smoke test en dominio real
+
+- [ ] Home: filtros, sector, vehículo, paginación
+- [ ] Detalle → WhatsApp abre `wa.me` con mensaje correcto
+- [ ] Guardar favorito → `/guardados`
+- [ ] `/buscar-por-imagen` identifica y redirige al catálogo
+- [ ] Login vendedor → subir foto (ImageKit `/autoescan`) → aparece en catálogo
+- [ ] `/tiendas` lista locales y enlaza a `/tienda/[id]`
+- [ ] `/privacidad` y `/terminos` visibles desde el footer
+
+### 4. Operación
+
+- [ ] Dominio + HTTPS
+- [ ] Revisar costos Gemini / ImageKit / Railway de búsqueda
+- [ ] Correos de contacto reales (`hola@` / `privacidad@`) o actualizar páginas legales
+- [ ] Backup de Mongo y rotación de secretos
+
+## Estructura
+
+```
+src/
+  app/                  # App Router (páginas + API)
+  components/
+    ai/                 # Dropzone búsqueda por imagen
+    layout/             # Header / footer
+    parts/              # Tarjeta, filtros, WhatsApp, stock
+    seller/             # Inventario y formulario
+    ui/                 # shadcn/ui
+  lib/
+    models/             # User, Part (Mongoose)
+    actions/            # Server Actions
+    db.ts               # Cliente MongoDB
+    gemini.ts           # Cliente Gemini
+    parts-service.ts    # Capa de datos (+ fallback demo)
+```
+
+## Contacto local
+
+El botón **Consultar por WhatsApp** abre `wa.me/593...` con el mensaje:
+
+> Hola [Tienda], vi su publicación de [Repuesto] por $[Precio] en la app y deseo saber si aún lo tienen disponible.
