@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getOrCreateClientSessionId } from "@/lib/client-session";
+import { PhotoGuide } from "@/components/ai/photo-guide";
 import { MARCAS_COMUNES } from "@/lib/constants";
 import type { IdentifyPartResult } from "@/lib/types";
 
@@ -229,6 +230,8 @@ export function ImageSearch() {
           </div>
         </div>
       </div>
+
+      <PhotoGuide />
 
       <div
         onDragOver={(e) => {

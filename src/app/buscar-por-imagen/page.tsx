@@ -30,8 +30,8 @@ export default function BuscarPorImagenPage() {
             Buscar por imagen
           </h1>
           <p className="text-muted-foreground">
-            Indica tu vehículo, sube la foto y encuentra el repuesto compatible
-            en Ambato.
+            Indica tu vehículo, toma o sube una foto clara de la pieza y
+            encuentra el repuesto compatible en Ambato.
           </p>
         </div>
 
