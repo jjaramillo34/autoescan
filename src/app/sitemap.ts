@@ -1,17 +1,10 @@
 import type { MetadataRoute } from "next";
 import { getParts } from "@/lib/parts-service";
+import { getSiteUrl } from "@/lib/site-url";
 import { getPublicStores } from "@/lib/stores";
 
-function siteUrl() {
-  return (
-    process.env.AUTH_URL?.replace(/\/$/, "") ||
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-    "https://autoescan.ec"
-  );
-}
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = siteUrl();
+  const base = getSiteUrl();
   const staticRoutes: MetadataRoute.Sitemap = [
     "",
     "/tiendas",

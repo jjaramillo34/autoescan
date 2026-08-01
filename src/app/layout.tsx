@@ -10,6 +10,7 @@ import { FavoritesUserProvider } from "@/components/favorites/favorites-user";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { RegisterServiceWorker } from "@/components/pwa/register-sw";
 import { auth } from "@/auth";
+import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 const ibmPlex = IBM_Plex_Sans({
@@ -25,13 +26,39 @@ const oswald = Oswald({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "AutoEscán | Repuestos en Ambato",
+    default: "AutoEscán | Escanea y encuentra repuestos en Ambato",
     template: "%s | AutoEscán",
   },
   description:
-    "Marketplace de repuestos automotrices en Ecuador. Piloto en Ambato, Tungurahua. Busca por filtros o identifica piezas con IA.",
+    "Escanea y encuentra repuestos en Ambato. Marketplace con búsqueda por foto e inventario de locales reales en Tungurahua, Ecuador.",
   applicationName: "AutoEscán",
+  keywords: [
+    "repuestos",
+    "Ambato",
+    "Tungurahua",
+    "autopartes",
+    "Ecuador",
+    "AutoEscán",
+    "buscar por foto",
+  ],
+  openGraph: {
+    type: "website",
+    locale: "es_EC",
+    siteName: "AutoEscán",
+    title: "AutoEscán | Escanea y encuentra repuestos en Ambato",
+    description:
+      "Catálogo inteligente de repuestos: foto o filtros, contacto directo por WhatsApp con locales en Ambato.",
+    images: [{ url: "/icons/icon-512.png", width: 512, height: 512, alt: "AutoEscán" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AutoEscán | Repuestos en Ambato",
+    description:
+      "Escanea y encuentra repuestos en Ambato. Catálogo local + búsqueda por foto.",
+    images: ["/icons/icon-512.png"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

@@ -1,15 +1,8 @@
 import type { MetadataRoute } from "next";
-
-function siteUrl() {
-  return (
-    process.env.AUTH_URL?.replace(/\/$/, "") ||
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-    "https://autoescan.ec"
-  );
-}
+import { getSiteUrl } from "@/lib/site-url";
 
 export default function robots(): MetadataRoute.Robots {
-  const base = siteUrl();
+  const base = getSiteUrl();
   return {
     rules: [
       {

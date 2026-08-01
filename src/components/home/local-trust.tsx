@@ -1,37 +1,43 @@
 import Link from "next/link";
-import { MapPin, MessageCircle, Store, Wallet } from "lucide-react";
+import { BadgeDollarSign, MessageCircle, Store, UserRoundX } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SECTORES_AMBATO } from "@/lib/constants";
 
 const POINTS = [
   {
-    icon: MapPin,
-    title: "Sectores de Ambato",
-    text: SECTORES_AMBATO.slice(0, 5).join(" · "),
+    icon: BadgeDollarSign,
+    title: "Consulta gratis",
+    text: "Ver el catálogo y escribir al local no tiene costo en AutoEscán.",
+  },
+  {
+    icon: UserRoundX,
+    title: "Sin registro obligatorio",
+    text: "Buscas y contactas por WhatsApp. La cuenta es opcional para favoritos.",
   },
   {
     icon: MessageCircle,
-    title: "WhatsApp directo",
-    text: "Hablas con el local. Sin intermediarios ni esperas.",
-  },
-  {
-    icon: Wallet,
-    title: "Pago en el local",
-    text: "Acuerdas precio y retiro o entrega con la tienda.",
+    title: "Pagas en el local",
+    text: "Cierras precio, retiro o entrega directo con la tienda.",
   },
 ] as const;
 
 export function LocalTrust() {
   return (
-    <section className="border-y border-border/50 py-12">
-      <div className="mx-auto max-w-6xl space-y-10 px-4">
+    <section className="relative overflow-hidden border-y border-border/50 py-14">
+      <div
+        className="pointer-events-none absolute inset-0 opacity-50"
+        style={{
+          backgroundImage:
+            "radial-gradient(ellipse 60% 50% at 50% 0%, oklch(0.55 0.12 45 / 0.12), transparent)",
+        }}
+      />
+      <div className="relative mx-auto max-w-6xl space-y-10 px-4">
         <div className="mx-auto max-w-2xl space-y-2 text-center">
           <h2 className="font-heading text-2xl tracking-wide sm:text-3xl">
             Hecho para Ambato
           </h2>
           <p className="text-muted-foreground">
-            Marketplace de repuestos en Tungurahua: catálogo online, trato en el
-            local.
+            Tecnología rápida, trato de barrio: escanea, encuentra y habla con
+            el local.
           </p>
         </div>
 
@@ -39,9 +45,11 @@ export function LocalTrust() {
           {POINTS.map((point) => {
             const Icon = point.icon;
             return (
-              <li key={point.title} className="space-y-2 text-center sm:text-left">
-                <p className="inline-flex items-center gap-2 font-heading text-lg tracking-wide">
-                  <Icon className="size-4 text-primary" />
+              <li key={point.title} className="space-y-3 text-center">
+                <span className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary/12 text-primary ring-1 ring-primary/20">
+                  <Icon className="size-5" />
+                </span>
+                <p className="font-heading text-lg tracking-wide">
                   {point.title}
                 </p>
                 <p className="text-sm text-muted-foreground">{point.text}</p>
@@ -55,7 +63,7 @@ export function LocalTrust() {
             <Store className="size-4 text-accent" />
             ¿Tienes un local de repuestos en Ambato?
           </p>
-          <Button asChild size="lg" variant="secondary">
+          <Button asChild size="lg">
             <Link href="/registro-vendedor">Publicar mi tienda</Link>
           </Button>
         </div>

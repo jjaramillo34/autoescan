@@ -12,7 +12,7 @@ import { CategoryShortcuts } from "@/components/home/category-shortcuts";
 import { HowItWorks } from "@/components/home/how-it-works";
 import { StoresEntry } from "@/components/home/stores-entry";
 import { SectorChips } from "@/components/home/sector-chips";
-import { VehicleBar } from "@/components/home/vehicle-bar";
+import { HomeSearchBar } from "@/components/home/home-search-bar";
 import { RecentPartsRail } from "@/components/home/recent-parts-rail";
 import { LocalTrust } from "@/components/home/local-trust";
 import { SponsoredBanner } from "@/components/home/sponsored-banner";
@@ -143,9 +143,13 @@ export default async function HomePage({ searchParams }: HomeProps) {
     <div className="space-y-0 pb-20 md:pb-0">
       <HomeHero />
 
-      <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:py-10">
-        <Suspense fallback={null}>
-          <VehicleBar />
+      <div className="mx-auto max-w-6xl space-y-12 px-4 pb-10 pt-0 sm:space-y-14 sm:pb-12">
+        <Suspense
+          fallback={
+            <div className="-mt-6 h-28 animate-pulse rounded-2xl bg-muted/50 sm:-mt-10" />
+          }
+        >
+          <HomeSearchBar />
         </Suspense>
 
         <Suspense fallback={null}>
