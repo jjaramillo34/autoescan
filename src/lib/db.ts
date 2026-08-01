@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI;
-
 interface MongooseCache {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
@@ -18,11 +16,18 @@ const cached: MongooseCache = global.mongooseCache ?? {
 
 global.mongooseCache = cached;
 
+function getMongoUri(): string | undefined {
+  // Leer en cada llamada: en scripts, dotenv puede cargar después del import.
+  const uri = process.env.MONGODB_URI;
+  return uri && uri.length > 0 ? uri : undefined;
+}
+
 export function isDatabaseConfigured(): boolean {
-  return Boolean(MONGODB_URI && MONGODB_URI.length > 0);
+  return Boolean(getMongoUri());
 }
 
 export async function connectDB(): Promise<typeof mongoose> {
+  const MONGODB_URI = getMongoUri();
   if (!MONGODB_URI) {
     throw new Error(
       "Falta MONGODB_URI. Configúrala en .env.local para conectar a MongoDB.",
